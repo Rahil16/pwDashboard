@@ -6,8 +6,8 @@ const App = () => {
     <div>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LoginCard/>}/>
-          <Route path="/dashboard" element={<Dashboard/>}/>
+          <Route path="/dashboard" element={<LoginCard/>}/>
+          <Route path="/" element={<Dashboard/>}/>
         </Routes>
       </BrowserRouter>
     </div>
