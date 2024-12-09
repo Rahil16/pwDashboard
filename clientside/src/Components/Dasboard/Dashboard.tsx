@@ -58,7 +58,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/orders");
+        const response = await axios.get("pwdashboard-production.up.railway.app/orders");
         setData(response.data);
       } catch (error) {
         console.log("error in fetching data:", error);
