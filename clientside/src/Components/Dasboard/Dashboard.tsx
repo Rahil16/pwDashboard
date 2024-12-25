@@ -58,7 +58,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://pwdashboard-production.up.railway.app/orders");
+        const response = await axios.get("https://pwdashboard-production.up.railway.app/orders" );
         setData(response.data);
         console.log(Array.isArray(response));
         

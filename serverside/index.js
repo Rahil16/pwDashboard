@@ -26,7 +26,7 @@ db.connect(err => {
 });
 
 app.get('/orders', (req, res) => {
-    db.query('SELECT * FROM orders;', (err, results) => {
+    db.query('SELECT * FROM completedata;', (err, results) => {
         if (err) {
             return res.status(500).send(err);
         }
