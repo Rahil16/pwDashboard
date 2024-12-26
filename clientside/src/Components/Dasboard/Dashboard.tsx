@@ -11,7 +11,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { Button, IconButton } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { LineChart } from "@mui/x-charts";
-
+import TableOnClick from "../Table/Table";
 interface Order {
   id: number;
   Category: string;
@@ -47,7 +47,7 @@ const Dashboard = () => {
   const [filteredData, setFilteredData] = useState<Order[]>([]);
   const [filterSearch, setFilterSearch] = useState({
     region: "",
-    orderID:"",
+    orderID: "",
   });
   const [selectedDate, setSelectedtDate] = useState<DateType>({
     firstDate: undefined,
@@ -55,13 +55,21 @@ const Dashboard = () => {
   });
   const [activeFilter, setActiveFilter] = useState<ActiveFilter[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [clickedOrderNo, setclickedOrderNo] = useState<string | number | null>(
+    null
+  );
+  const tableStyle = {
+    overflow: clickedOrderNo ? "auto" : undefined,
+    height: "100%",
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://pwdashboard-production.up.railway.app/orders" );
+        const response = await axios.get(
+          "https://pwdashboard-production.up.railway.app/orders"
+        );
         setData(response.data);
         console.log(Array.isArray(response));
-        
       } catch (error) {
         console.log("error in fetching data:", error);
       }
@@ -93,10 +101,13 @@ const Dashboard = () => {
     setFilteredData(filteredData.filter((item1) => item1.City === item));
     setActiveFilter((prev) => [...prev, { type: "city", value: item }]);
   };
-  const filterByOrderId=(item:number)=>{
-    setFilteredData(filteredData.filter((item1)=>item1.OrderNumber===item));
-    setActiveFilter((prev)=>[...prev,{type:"orderID",value:item.toString()}])
-  }
+  const filterByOrderId = (item: number) => {
+    setFilteredData(filteredData.filter((item1) => item1.OrderNumber === item));
+    setActiveFilter((prev) => [
+      ...prev,
+      { type: "orderID", value: item.toString() },
+    ]);
+  };
   const filterByDate = () => {
     if (selectedDate.firstDate && selectedDate.secondDate) {
       setFilteredData(
@@ -248,9 +259,11 @@ const Dashboard = () => {
               />
               <button
                 type="submit"
-                onClick={()=>{filterByOrderId(Number(filterSearch.orderID));console.log(filterSearch.orderID);
+                onClick={() => {
+                  filterByOrderId(Number(filterSearch.orderID));
                 }}
                 className="date-submitbtn"
+                style={{ width: "90%", marginTop: "5%" }}
               >
                 Submit
               </button>
@@ -306,53 +319,83 @@ const Dashboard = () => {
                     width: "100%",
                   }}
                 >
-                  <div style={{ height: "100%" }}>
-                    <MemoChart
-                      xAxis={[
-                        {
-                          scaleType: "band",
-                          data: paginatedData.map((item) => item.id),
-                          valueFormatter: (id) => {
-                            const correspondingOrder = paginatedData.find(
-                              (item) => item.id === id
-                            );
-                            return `${correspondingOrder?.OrderNumber || id}`;
+                  <div style={tableStyle}>
+                    {clickedOrderNo ? (
+                      <div>
+                        <TableOnClick
+                          data={data.filter(
+                            (item) => item.OrderNumber === clickedOrderNo
+                          )}
+                        />
+                      </div>
+                    ) : (
+                      <MemoChart
+                        xAxis={[
+                          {
+                            scaleType: "band",
+                            data: paginatedData.map((item) => item.id),
+                            valueFormatter: (id) => {
+                              const correspondingOrder = paginatedData.find(
+                                (item) => item.id === id
+                              );
+                              return `${correspondingOrder?.OrderNumber || id}`;
+                            },
+                            dataKey: "OrderNumber",
+                            min: 0,
+                            max: paginatedData.length - 1,
+                            tickLabelStyle: {
+                              fontSize: 10,
+                            },
                           },
-                          dataKey: "OrderNumber",
-                          min: 0,
-                          max: paginatedData.length - 1,
-                          tickLabelStyle: {
-                            fontSize: 10,
+                        ]}
+                        onItemClick={(_e, itemIndex) => {
+                          const clickedOrder =
+                            paginatedData[itemIndex.dataIndex].OrderNumber;
+                          if (clickedOrder) {
+                            setclickedOrderNo(clickedOrder);
+                          }
+                          console.log(clickedOrder);
+                        }}
+                        axisHighlight={{ x: "band", y: "none" }}
+                        tooltip={{
+                          trigger: "axis",
+                        }}
+                        borderRadius={2}
+                        series={[
+                          {
+                            data: paginatedData.map((item) => item.Sales),
+                            label: "Series Label",
+                            color: "#BFE8FF",
                           },
-                        },
-                      ]}
-                      axisHighlight={{ x: "band", y: "none" }}
-                      tooltip={{
-                        trigger: "axis",
-                      }}
-                      borderRadius={2}
-                      series={[
-                        {
-                          data: paginatedData.map((item) => item.Sales),
-                          label: "Series Label",
-                          color: "#BFE8FF",
-                        },
-                      ]}
-                      width={chartWidth}
-                      height={350}
-                    />
+                        ]}
+                        width={chartWidth}
+                        height={350}
+                      />
+                    )}
                   </div>
                 </div>
-                <Pagination
-                  style={{ marginTop: "5px" }}
-                  variant="outlined"
-                  count={Math.ceil(filteredData.length / rowsPerTime)}
-                  page={currentPage}
-                  onChange={(_e, value) => {
-                    setCurrentPage(value);
-                  }}
-                  color="primary"
-                />
+                {clickedOrderNo ? (
+                  <button
+                    className="date-submitbtn"
+                    style={{ width: "40%", marginTop: "5%" }}
+                    onClick={() => {
+                      setclickedOrderNo(null);
+                    }}
+                  >
+                    Close Table
+                  </button>
+                ) : (
+                  <Pagination
+                    style={{ marginTop: "5px" }}
+                    variant="outlined"
+                    count={Math.ceil(filteredData.length / rowsPerTime)}
+                    page={currentPage}
+                    onChange={(_e, value) => {
+                      setCurrentPage(value);
+                    }}
+                    color="primary"
+                  />
+                )}
               </div>
 
               <div className="linechart">
@@ -375,17 +418,32 @@ const Dashboard = () => {
                       },
                     },
                   ]}
-
+                  sx={{
+                    "& .MuiAreaElement-series-Sales": {
+                      fill: "url(#myGradient)",
+                    },
+                  }}
                   series={[
                     {
+                      id:"Sales",
                       data: paginatedData.map((item) => item.Sales),
                       label: "Series Label",
                       color: "#0095FF",
+                      showMark: false,
+                      curve: "linear",
+                      area: true,
                     },
                   ]}
                   width={chartWidth}
                   height={225}
-                />
+                >
+                  <defs>
+                    <linearGradient id="myGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0095FF" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#0095FF" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+                </LineChart>
               </div>
             </div>
           </div>
