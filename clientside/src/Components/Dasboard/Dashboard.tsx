@@ -1,6 +1,5 @@
 import "../../styles/styles.css";
 import { BarChart } from "@mui/x-charts/BarChart";
-import Pagination from "@mui/material/Pagination";
 import axios from "axios";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "dayjs/locale/en-gb";
@@ -8,10 +7,11 @@ import React, { useEffect, useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import { Button, IconButton } from "@mui/material";
+import { Button, IconButton, Menu, MenuItem } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { LineChart } from "@mui/x-charts";
 import TableOnClick from "../Table/Table";
+import MenuIcon from "@mui/icons-material/Menu";
 interface Order {
   id: number;
   Category: string;
@@ -31,6 +31,7 @@ interface Order {
   State: string;
   Status: string;
   Territory: string;
+  margin:number;
   Year_ID: number;
 }
 interface DateType {
@@ -49,18 +50,30 @@ const Dashboard = () => {
     region: "",
     orderID: "",
   });
+  type GroupByKey = "City" | "Product" |"Territory";
+  type GroupByType = "Sales" | "QuantityOrdered" | "margin";
   const [selectedDate, setSelectedtDate] = useState<DateType>({
     firstDate: undefined,
     secondDate: undefined,
   });
   const [activeFilter, setActiveFilter] = useState<ActiveFilter[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [clickedOrderNo, setclickedOrderNo] = useState<string | number | null>(
     null
   );
+  const [chartFilter, setChartFilter] = useState<GroupByKey>("City");
+  const [chartType,setChartType] = useState<GroupByType>("Sales");
   const tableStyle = {
     overflow: clickedOrderNo ? "auto" : undefined,
     height: "100%",
+  };
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const isOpen = Boolean(anchorEl);
+
+  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -69,7 +82,6 @@ const Dashboard = () => {
           "https://pwdashboard-production.up.railway.app/orders"
         );
         setData(response.data);
-        console.log(Array.isArray(response));
       } catch (error) {
         console.log("error in fetching data:", error);
       }
@@ -87,14 +99,8 @@ const Dashboard = () => {
           item.toLowerCase().includes(filterSearch.region.toLowerCase())
         );
 
-  const rowsPerTime = 100;
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * rowsPerTime,
-    currentPage * rowsPerTime
-  );
-
-  const chartWidth = Math.max(600, paginatedData.length * 40);
-
+  
+  
   const MemoChart = React.memo(BarChart);
 
   const filterByCity = (item: string) => {
@@ -156,8 +162,6 @@ const Dashboard = () => {
           (item) => item.City === filter.value
         );
       } else if (filter.type === "date") {
-        console.log(filter.value.split(" to "));
-
         newFilteredData = newFilteredData.filter(
           (item) =>
             new Date(item.OrderDate) <=
@@ -175,11 +179,45 @@ const Dashboard = () => {
     setFilteredData(newFilteredData);
   };
 
+  const salesByCity = filteredData.reduce((add, item) => {
+    const key = item[chartFilter]
+    const type = item[chartType]
+
+    if (add[key]) {
+          add[key] += Number(type as unknown as string);
+        } else {
+          add[key] = Number(type as unknown as string);
+        }
+    return add;
+  }, {} as Record<string, number>);
+  const chartWidth = Math.max(Object.keys(salesByCity).length * 50,600);
+
   return (
     <div>
       <div className="dashboard">
         <div style={{ display: "flex" }}>
           <div className="filter-container">
+            <div className="filter-box">
+              <label className="date-label">Filter By:</label>
+              <button
+                className="filter-btn"
+                onClick={() => setChartFilter("City")}
+              >
+                City
+              </button>
+              <button
+                className="filter-btn"
+                onClick={() => setChartFilter("Product")}
+              >
+                Product
+              </button>
+              <button
+                className="filter-btn"
+                onClick={() => setChartFilter("Territory")}
+              >
+                Territory
+              </button>
+            </div>
             <div className="filter-box">
               <label className="date-label">Date</label>
               <LocalizationProvider
@@ -273,6 +311,16 @@ const Dashboard = () => {
           <div className="title-chart-container">
             <div className="title">Performance Dashboard</div>
             <p className="sub-title">Get summary of your sales here,</p>
+            <div style={{display:"flex",justifyContent:"end"}}>
+              <IconButton onClick={handleOpen}>
+                <MenuIcon />
+              </IconButton>
+              <Menu anchorEl={anchorEl} open={isOpen} onClose={handleClose}>
+                <MenuItem onClick={()=>{handleClose(); setChartType("Sales")}}>Sales</MenuItem>
+                <MenuItem onClick={()=>{handleClose(); setChartType("QuantityOrdered")}}>Orders</MenuItem>
+                <MenuItem onClick={()=>{handleClose(); setChartType("margin")}}>Margin</MenuItem>
+              </Menu>
+            </div>
             {activeFilter.length > 0 && (
               <div style={{ display: "flex", gap: "1%" }}>
                 {activeFilter.map((filter, index) => (
@@ -324,7 +372,7 @@ const Dashboard = () => {
                       <div>
                         <TableOnClick
                           data={data.filter(
-                            (item) => item.OrderNumber === clickedOrderNo
+                            (item) => item.City === clickedOrderNo
                           )}
                         />
                       </div>
@@ -333,28 +381,35 @@ const Dashboard = () => {
                         xAxis={[
                           {
                             scaleType: "band",
-                            data: paginatedData.map((item) => item.id),
-                            valueFormatter: (id) => {
-                              const correspondingOrder = paginatedData.find(
-                                (item) => item.id === id
-                              );
-                              return `${correspondingOrder?.OrderNumber || id}`;
-                            },
-                            dataKey: "OrderNumber",
-                            min: 0,
-                            max: paginatedData.length - 1,
+                            data: Object.keys(salesByCity),
+                            dataKey: "City",
                             tickLabelStyle: {
-                              fontSize: 10,
+                              fontSize: 8,
+                              angle: 45,
+                              textAnchor: "start",
+                            },
+                          },
+                        ]}
+                        
+                        yAxis={[
+                          {
+                            
+                            min: Math.min(...Object.values(salesByCity))*1.1,
+                            max: Math.max(...Object.values(salesByCity))*1.1,
+                            tickLabelStyle: {
+                              fontSize: 8,
                             },
                           },
                         ]}
                         onItemClick={(_e, itemIndex) => {
-                          const clickedOrder =
-                            paginatedData[itemIndex.dataIndex].OrderNumber;
-                          if (clickedOrder) {
-                            setclickedOrderNo(clickedOrder);
+                          const clickedItem =
+                            Object.keys(salesByCity)[itemIndex.dataIndex];
+                          console.log(
+                            Object.keys(salesByCity)[itemIndex.dataIndex]
+                          );
+                          if (clickedItem) {
+                            setclickedOrderNo(clickedItem);
                           }
-                          console.log(clickedOrder);
                         }}
                         axisHighlight={{ x: "band", y: "none" }}
                         tooltip={{
@@ -363,13 +418,14 @@ const Dashboard = () => {
                         borderRadius={2}
                         series={[
                           {
-                            data: paginatedData.map((item) => item.Sales),
+                            data: Object.values(salesByCity),
                             label: "Series Label",
                             color: "#BFE8FF",
                           },
                         ]}
-                        width={chartWidth}
-                        height={350}
+                        
+                        width={chartWidth} 
+                        height={320}
                       />
                     )}
                   </div>
@@ -384,18 +440,7 @@ const Dashboard = () => {
                   >
                     Close Table
                   </button>
-                ) : (
-                  <Pagination
-                    style={{ marginTop: "5px" }}
-                    variant="outlined"
-                    count={Math.ceil(filteredData.length / rowsPerTime)}
-                    page={currentPage}
-                    onChange={(_e, value) => {
-                      setCurrentPage(value);
-                    }}
-                    color="primary"
-                  />
-                )}
+                ) : null}
               </div>
 
               <div className="linechart">
@@ -403,16 +448,16 @@ const Dashboard = () => {
                   xAxis={[
                     {
                       scaleType: "band",
-                      data: paginatedData.map((item) => item.id),
+                      data: Object.keys(salesByCity),
                       valueFormatter: (id) => {
-                        const correspondingOrder = paginatedData.find(
+                        const correspondingOrder = filteredData.find(
                           (item) => item.id === id
                         );
                         return `${correspondingOrder?.OrderNumber || id}`;
                       },
                       dataKey: "OrderNumber",
                       min: 0,
-                      max: paginatedData.length - 1,
+                      max: filteredData.length - 1,
                       tickLabelStyle: {
                         fontSize: 10,
                       },
@@ -425,8 +470,8 @@ const Dashboard = () => {
                   }}
                   series={[
                     {
-                      id:"Sales",
-                      data: paginatedData.map((item) => item.Sales),
+                      id: "Sales",
+                      data: Object.values(salesByCity),
                       label: "Series Label",
                       color: "#0095FF",
                       showMark: false,
@@ -439,8 +484,12 @@ const Dashboard = () => {
                 >
                   <defs>
                     <linearGradient id="myGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0095FF" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#0095FF" stopOpacity={0.05} />
+                      <stop offset="0%" stopColor="#0095FF" stopOpacity={0.3} />
+                      <stop
+                        offset="100%"
+                        stopColor="#0095FF"
+                        stopOpacity={0.05}
+                      />
                     </linearGradient>
                   </defs>
                 </LineChart>
