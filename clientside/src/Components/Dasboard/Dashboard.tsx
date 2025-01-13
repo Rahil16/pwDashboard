@@ -9,7 +9,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, IconButton, Menu, MenuItem } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
-import { LineChart } from "@mui/x-charts";
+import { axisClasses, LineChart } from "@mui/x-charts";
 import TableOnClick from "../Table/Table";
 import MenuIcon from "@mui/icons-material/Menu";
 interface Order {
@@ -31,7 +31,7 @@ interface Order {
   State: string;
   Status: string;
   Territory: string;
-  margin:number;
+  margin: number;
   Year_ID: number;
 }
 interface DateType {
@@ -50,7 +50,7 @@ const Dashboard = () => {
     region: "",
     orderID: "",
   });
-  type GroupByKey = "City" | "Product" |"Territory";
+  type GroupByKey = "City" | "Product" | "Territory";
   type GroupByType = "Sales" | "QuantityOrdered" | "margin";
   const [selectedDate, setSelectedtDate] = useState<DateType>({
     firstDate: undefined,
@@ -61,7 +61,7 @@ const Dashboard = () => {
     null
   );
   const [chartFilter, setChartFilter] = useState<GroupByKey>("City");
-  const [chartType,setChartType] = useState<GroupByType>("Sales");
+  const [chartType, setChartType] = useState<GroupByType>("Sales");
   const tableStyle = {
     overflow: clickedOrderNo ? "auto" : undefined,
     height: "100%",
@@ -99,8 +99,6 @@ const Dashboard = () => {
           item.toLowerCase().includes(filterSearch.region.toLowerCase())
         );
 
-  
-  
   const MemoChart = React.memo(BarChart);
 
   const filterByCity = (item: string) => {
@@ -180,17 +178,25 @@ const Dashboard = () => {
   };
 
   const salesByCity = filteredData.reduce((add, item) => {
-    const key = item[chartFilter]
-    const type = item[chartType]
+    const key = item[chartFilter];
+    const type = item[chartType];
 
     if (add[key]) {
-          add[key] += Number(type as unknown as string);
-        } else {
-          add[key] = Number(type as unknown as string);
-        }
+      add[key] += Number(type as unknown as string);
+    } else {
+      add[key] = Number(type as unknown as string);
+    }
     return add;
   }, {} as Record<string, number>);
-  const chartWidth = Math.max(Object.keys(salesByCity).length * 50,600);
+  const chartWidth = Math.max(Object.keys(salesByCity).length * 50, 600);
+  
+  const sortedSalesByCity = Object.entries(salesByCity).sort(([, valueA], [, valueB]) => valueB - valueA)
+  
+  const chartData = sortedSalesByCity.map(([city, value]) => ({
+    x: city, 
+    y: value, 
+  }));
+  
 
   return (
     <div>
@@ -311,14 +317,35 @@ const Dashboard = () => {
           <div className="title-chart-container">
             <div className="title">Performance Dashboard</div>
             <p className="sub-title">Get summary of your sales here,</p>
-            <div style={{display:"flex",justifyContent:"end"}}>
+            <div style={{ display: "flex", justifyContent: "end" }}>
               <IconButton onClick={handleOpen}>
                 <MenuIcon />
               </IconButton>
               <Menu anchorEl={anchorEl} open={isOpen} onClose={handleClose}>
-                <MenuItem onClick={()=>{handleClose(); setChartType("Sales")}}>Sales</MenuItem>
-                <MenuItem onClick={()=>{handleClose(); setChartType("QuantityOrdered")}}>Orders</MenuItem>
-                <MenuItem onClick={()=>{handleClose(); setChartType("margin")}}>Margin</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    setChartType("Sales");
+                  }}
+                >
+                  Sales
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    setChartType("QuantityOrdered");
+                  }}
+                >
+                  Orders
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    setChartType("margin");
+                  }}
+                >
+                  Margin
+                </MenuItem>
               </Menu>
             </div>
             {activeFilter.length > 0 && (
@@ -380,9 +407,16 @@ const Dashboard = () => {
                       <MemoChart
                         xAxis={[
                           {
+                            label: chartFilter,
+
+                            labelStyle: {
+                              fontWeight: "bolder",
+                            },
+                            labelFontSize: 15,
                             scaleType: "band",
-                            data: Object.keys(salesByCity),
+                            data: chartData.map(item=>item.x),
                             dataKey: "City",
+
                             tickLabelStyle: {
                               fontSize: 8,
                               angle: 45,
@@ -390,12 +424,40 @@ const Dashboard = () => {
                             },
                           },
                         ]}
-                        
+                        margin={{
+                          left: 70,
+                          right: 20,
+                          bottom: 80,
+                        }}
+                        sx={{
+                          [`.${axisClasses.left} .${axisClasses.label}`]: {
+                            transform: "translateX(-30px)",
+                          },
+                          [`.${axisClasses.bottom} .${axisClasses.label}`]: {
+                            
+                            transform:`translate(-${chartWidth*.385}px,30px)`
+                          },
+                        }}
+                        slotProps={{
+                          legend: {
+                            position: {
+                              horizontal: "left",
+                              vertical: "top",
+                            },
+                            padding: {
+                              left: 200,
+                            },
+                          },
+                        }}
                         yAxis={[
                           {
-                            
-                            min: Math.min(...Object.values(salesByCity))*1.1,
-                            max: Math.max(...Object.values(salesByCity))*1.1,
+                            label: chartType,
+                            labelStyle: {
+                              fontWeight: "bolder",
+                            },
+                            labelFontSize: 15,
+                            min: Math.min(...Object.values(salesByCity)) * 1.1,
+                            max: Math.max(...Object.values(salesByCity)) * 1.1,
                             tickLabelStyle: {
                               fontSize: 8,
                             },
@@ -418,13 +480,12 @@ const Dashboard = () => {
                         borderRadius={2}
                         series={[
                           {
-                            data: Object.values(salesByCity),
-                            label: "Series Label",
+                            data: chartData.map(item=>item.y),
+                            label: `${chartType} vs ${chartFilter}`,
                             color: "#BFE8FF",
                           },
                         ]}
-                        
-                        width={chartWidth} 
+                        width={chartWidth}
                         height={320}
                       />
                     )}
@@ -448,13 +509,7 @@ const Dashboard = () => {
                   xAxis={[
                     {
                       scaleType: "band",
-                      data: Object.keys(salesByCity),
-                      valueFormatter: (id) => {
-                        const correspondingOrder = filteredData.find(
-                          (item) => item.id === id
-                        );
-                        return `${correspondingOrder?.OrderNumber || id}`;
-                      },
+                      data: chartData.map(item=>item.x),
                       dataKey: "OrderNumber",
                       min: 0,
                       max: filteredData.length - 1,
@@ -471,7 +526,7 @@ const Dashboard = () => {
                   series={[
                     {
                       id: "Sales",
-                      data: Object.values(salesByCity),
+                      data: chartData.map(item=>item.y),
                       label: "Series Label",
                       color: "#0095FF",
                       showMark: false,
