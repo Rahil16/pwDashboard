@@ -407,7 +407,7 @@ const Dashboard = () => {
                       <MemoChart
                         xAxis={[
                           {
-                            label: chartFilter,
+                            label: chartFilter==="City" ? "Cities" : chartFilter==="Product" ? "Products" : "Territories",
 
                             labelStyle: {
                               fontWeight: "bolder",
@@ -451,7 +451,7 @@ const Dashboard = () => {
                         }}
                         yAxis={[
                           {
-                            label: chartType,
+                            label: chartType==="Sales" ? "Total Sales" : chartType==="QuantityOrdered" ? "Total Orders" : "Total Margins",
                             labelStyle: {
                               fontWeight: "bolder",
                             },
@@ -481,7 +481,7 @@ const Dashboard = () => {
                         series={[
                           {
                             data: chartData.map(item=>item.y),
-                            label: `${chartType} vs ${chartFilter}`,
+                            label: `${chartType==="Sales" ? "Total Sales" : chartType==="QuantityOrdered" ? "Total Orders" : "Total Margins"} by ${chartFilter}`,
                             color: "#BFE8FF",
                           },
                         ]}
