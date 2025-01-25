@@ -50,6 +50,7 @@ const Dashboard = () => {
     region: "",
     orderID: "",
   });
+
   type GroupByKey = "City" | "Product" | "Territory";
   type GroupByType = "Sales" | "QuantityOrdered" | "margin";
   const [selectedDate, setSelectedtDate] = useState<DateType>({
@@ -101,10 +102,6 @@ const Dashboard = () => {
 
   const MemoChart = React.memo(BarChart);
 
-  const filterByCity = (item: string) => {
-    setFilteredData(filteredData.filter((item1) => item1.City === item));
-    setActiveFilter((prev) => [...prev, { type: "city", value: item }]);
-  };
   const filterByOrderId = (item: number) => {
     setFilteredData(filteredData.filter((item1) => item1.OrderNumber === item));
     setActiveFilter((prev) => [
@@ -188,15 +185,35 @@ const Dashboard = () => {
     }
     return add;
   }, {} as Record<string, number>);
-  const chartWidth = Math.max(Object.keys(salesByCity).length * 50, 600);
-  
-  const sortedSalesByCity = Object.entries(salesByCity).sort(([, valueA], [, valueB]) => valueB - valueA)
-  
+
+  const sortedSalesByCity = Object.entries(salesByCity).sort(
+    ([, valueA], [, valueB]) => valueB - valueA
+  );
+
   const chartData = sortedSalesByCity.map(([city, value]) => ({
-    x: city, 
-    y: value, 
+    x: city,
+    y: value,
   }));
-  
+
+  const chartWidth = Math.max(chartData.length * 50, 600);
+
+  //possibility of causing filtering issues
+  const filterByCity2 = (city: string) => {
+    setActiveFilter((prev) => {
+      const updatedFilter: ActiveFilter[] = [
+        ...prev,
+        { type: "city", value: city },
+      ];
+      setFilteredData(
+        updatedFilter.map((item) => item.value).length > 0
+          ? data.filter((item2) =>
+              updatedFilter.map((item3) => item3.value).includes(item2.City)
+            )
+          : data
+      );
+      return updatedFilter;
+    });
+  };
 
   return (
     <div>
@@ -285,7 +302,7 @@ const Dashboard = () => {
                   className="filter-btn"
                   key={index}
                   onClick={() => {
-                    filterByCity(item);
+                    filterByCity2(item);
                   }}
                 >
                   {item}
@@ -349,7 +366,7 @@ const Dashboard = () => {
               </Menu>
             </div>
             {activeFilter.length > 0 && (
-              <div style={{ display: "flex", gap: "1%" }}>
+              <div style={{ display: "flex", gap: "1%", flexWrap: "wrap" }}>
                 {activeFilter.map((filter, index) => (
                   <div key={index}>
                     <Button
@@ -380,6 +397,20 @@ const Dashboard = () => {
                     </Button>
                   </div>
                 ))}
+                <Button
+                  variant="outlined"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onClick={() => {
+                    setActiveFilter([]);
+                    setFilteredData(data);
+                  }}
+                >
+                  CLEAR ALL
+                </Button>
               </div>
             )}
 
@@ -407,14 +438,20 @@ const Dashboard = () => {
                       <MemoChart
                         xAxis={[
                           {
-                            label: chartFilter==="City" ? "Cities" : chartFilter==="Product" ? "Products" : "Territories",
+                            label:
+                              chartFilter === "City"
+                                ? "Cities"
+                                : chartFilter === "Product"
+                                ? "Products"
+                                : "Territories",
 
                             labelStyle: {
                               fontWeight: "bolder",
                             },
+
                             labelFontSize: 15,
                             scaleType: "band",
-                            data: chartData.map(item=>item.x),
+                            data: chartData.map((item) => item.x),
                             dataKey: "City",
 
                             tickLabelStyle: {
@@ -434,8 +471,9 @@ const Dashboard = () => {
                             transform: "translateX(-30px)",
                           },
                           [`.${axisClasses.bottom} .${axisClasses.label}`]: {
-                            
-                            transform:`translate(-${chartWidth*.385}px,30px)`
+                            transform: `translate(-${
+                              chartWidth * 0.385
+                            }px,30px)`,
                           },
                         }}
                         slotProps={{
@@ -451,13 +489,18 @@ const Dashboard = () => {
                         }}
                         yAxis={[
                           {
-                            label: chartType==="Sales" ? "Total Sales" : chartType==="QuantityOrdered" ? "Total Orders" : "Total Margins",
+                            label:
+                              chartType === "Sales"
+                                ? "Total Sales"
+                                : chartType === "QuantityOrdered"
+                                ? "Total Orders"
+                                : "Total Margins",
                             labelStyle: {
                               fontWeight: "bolder",
                             },
                             labelFontSize: 15,
-                            min: Math.min(...Object.values(salesByCity)) * 1.1,
-                            max: Math.max(...Object.values(salesByCity)) * 1.1,
+                            // min: Math.min(...Object.values(salesByCity)) * 1.1,
+                            // max: Math.max(...Object.values(salesByCity)) * 1.1,
                             tickLabelStyle: {
                               fontSize: 8,
                             },
@@ -480,8 +523,14 @@ const Dashboard = () => {
                         borderRadius={2}
                         series={[
                           {
-                            data: chartData.map(item=>item.y),
-                            label: `${chartType==="Sales" ? "Total Sales" : chartType==="QuantityOrdered" ? "Total Orders" : "Total Margins"} by ${chartFilter}`,
+                            data: chartData.map((item) => item.y),
+                            label: `${
+                              chartType === "Sales"
+                                ? "Total Sales"
+                                : chartType === "QuantityOrdered"
+                                ? "Total Orders"
+                                : "Total Margins"
+                            } by ${chartFilter}`,
                             color: "#BFE8FF",
                           },
                         ]}
@@ -509,7 +558,7 @@ const Dashboard = () => {
                   xAxis={[
                     {
                       scaleType: "band",
-                      data: chartData.map(item=>item.x),
+                      data: chartData.map((item) => item.x),
                       dataKey: "OrderNumber",
                       min: 0,
                       max: filteredData.length - 1,
@@ -526,7 +575,7 @@ const Dashboard = () => {
                   series={[
                     {
                       id: "Sales",
-                      data: chartData.map(item=>item.y),
+                      data: chartData.map((item) => item.y),
                       label: "Series Label",
                       color: "#0095FF",
                       showMark: false,
