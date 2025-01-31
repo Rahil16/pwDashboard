@@ -6,7 +6,7 @@ import env from "dotenv"
 
 const app=express();
 env.config();
-const port=process.env.MS_PORT || 8080;
+const port=process.env.PORT || 8080;
 app.use(cors());
 app.use(bodyParser.json());
 
