@@ -12,6 +12,7 @@ import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { axisClasses, LineChart } from "@mui/x-charts";
 import TableOnClick from "../Table/Table";
 import MenuIcon from "@mui/icons-material/Menu";
+
 interface Order {
   id: number;
   Category: string;
@@ -50,6 +51,7 @@ const Dashboard = () => {
     region: "",
     orderID: "",
   });
+  const [LineChartYear, setLineChartYear] = useState("2023");
 
   type GroupByKey = "City" | "Product" | "Territory";
   type GroupByType = "Sales" | "QuantityOrdered" | "margin";
@@ -195,7 +197,31 @@ const Dashboard = () => {
     y: value,
   }));
 
+  console.log(LineChartYear);
+  
+
+  const salesByMonth = filteredData
+    .filter((item) => item.OrderDate.toLocaleString().slice(0, 4) === LineChartYear)
+    .reduce((add, item) => {
+      const key = item["Month_ID"];
+      const type = item[chartType];
+
+      if (add[key]) {
+        add[key] += Number(type as unknown as string);
+      } else {
+        add[key] = Number(type as unknown as string);
+      }
+      return add;
+    }, {} as Record<string, number>);
+
   const chartWidth = Math.max(chartData.length * 50, 600);
+
+  const LineChartData = Object.entries(salesByMonth).map(([city, value]) => ({
+    x: city,
+    y: value,
+  }));
+
+  
 
   //possibility of causing filtering issues
   const filterByCity2 = (city: string) => {
@@ -554,37 +580,76 @@ const Dashboard = () => {
               </div>
 
               <div className="linechart">
+                <div className="dropdownDiv">
+                <select value={LineChartYear} onChange={(e) => setLineChartYear(e.target.value)} className="dropdown">
+                  <option value="2021" >2021</option>
+                  <option value="2022" >2022</option>
+                  <option value="2023" selected >2023</option>
+                </select>
+                </div>
                 <LineChart
                   xAxis={[
                     {
-                      scaleType: "band",
-                      data: chartData.map((item) => item.x),
-                      dataKey: "OrderNumber",
-                      min: 0,
-                      max: filteredData.length - 1,
+                      scaleType: "point",
+                      // data: LineChartData.map(item=>item.x),
+                      data: [
+                        "Jan",
+                        "Feb",
+                        "Mar",
+                        "Apr",
+                        "May",
+                        "Jun",
+                        "Jul",
+                        "Aug",
+                        "Sep",
+                        "Oct",
+                        "Nov",
+                        "Dec",
+                      ],
                       tickLabelStyle: {
                         fontSize: 10,
                       },
                     },
                   ]}
+                  slotProps={{
+                    legend: {
+                      position: {
+                        horizontal: "left",
+                        vertical: "top",
+                      },
+                      padding: {
+                        left: 200,
+                      },
+                    },
+                  }}
+                  margin={{left:100}}
+                  yAxis={[{
+                    scaleType:"linear",
+                    label:"Sales",
+                    tickFontSize:10
+                  }]}
                   sx={{
                     "& .MuiAreaElement-series-Sales": {
                       fill: "url(#myGradient)",
+                    },
+                    [`.${axisClasses.left} .${axisClasses.label}`]: {
+                      transform: "translateX(-30px)",
+                      fontWeight:"bold"
                     },
                   }}
                   series={[
                     {
                       id: "Sales",
-                      data: chartData.map((item) => item.y),
-                      label: "Series Label",
+                      data: LineChartData.map((item) => item.y),
+                      label: "Daily Sales",
                       color: "#0095FF",
                       showMark: false,
                       curve: "linear",
                       area: true,
                     },
                   ]}
-                  width={chartWidth}
-                  height={225}
+                  width={chartWidth }
+                  height={200}
                 >
                   <defs>
                     <linearGradient id="myGradient" x1="0" y1="0" x2="0" y2="1">
