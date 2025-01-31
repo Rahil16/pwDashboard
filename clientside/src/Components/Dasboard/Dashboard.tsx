@@ -80,7 +80,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://pwdashboard-production.up.railway.app/orders"
+          "https://app-2b6ed3f7-5352-4055-9ac8-7446afa8a1a3.cleverapps.io/orders"
         );
         setData(response.data);
       } catch (error) {
