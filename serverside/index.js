@@ -6,7 +6,7 @@ import env from "dotenv"
 
 const app=express();
 env.config();
-const port=process.env.MS_PORT || 3000;
+const port=process.env.MS_PORT || 8080;
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -36,4 +36,4 @@ app.get('/orders', (req, res) => {
     });
 });
 
-app.listen(port,"0.0.0.0:8080",()=>{console.log(`Listening at port ${port}`)})
+app.listen(port,"0.0.0.0",()=>{console.log(`Listening at port ${port}`)})
