@@ -31,7 +31,7 @@ app.get('/orders', (req, res) => {
             return res.status(500).send(err);
         }
         res.json(results);
-        console.log(results);
+        
         
     });
 });

@@ -47,6 +47,8 @@ interface ActiveFilter {
 const Dashboard = () => {
   const [data, setData] = useState<Order[]>([]);
   const [filteredData, setFilteredData] = useState<Order[]>([]);
+  const [tempData,setTempData] = useState<Order[]>(data);
+  
   const [filterSearch, setFilterSearch] = useState({
     region: "",
     orderID: "",
@@ -104,22 +106,31 @@ const Dashboard = () => {
 
   const MemoChart = React.memo(BarChart);
 
-  const filterByOrderId = (item: number) => {
-    setFilteredData(filteredData.filter((item1) => item1.OrderNumber === item));
-    setActiveFilter((prev) => [
-      ...prev,
-      { type: "orderID", value: item.toString() },
-    ]);
-  };
+  // const filterByOrderId = (item: number) => {
+  //   setFilteredData(filteredData.filter((item1) => item1.OrderNumber === item));
+  //   setActiveFilter((prev) => [
+  //     ...prev,
+  //     { type: "orderID", value: item.toString() },
+  //   ]);
+  // };
   const filterByDate = () => {
     if (selectedDate.firstDate && selectedDate.secondDate) {
       setFilteredData(
         filteredData.filter(
           (item) =>
-            dayjs(item.OrderDate) <= selectedDate.secondDate! &&
-            dayjs(item.OrderDate) >= selectedDate.firstDate!
+            dayjs(item.OrderDate) <= dayjs(selectedDate.secondDate).endOf('day') &&
+            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf('day')
         )
+        
       );
+
+      setTempData(
+        filteredData.filter(
+          (item) =>
+            dayjs(item.OrderDate) <= dayjs(selectedDate.secondDate).endOf('day') &&
+            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf('day')
+        ))
+      
       setActiveFilter((prev) => [
         ...prev,
         {
@@ -220,23 +231,36 @@ const Dashboard = () => {
     x: city,
     y: value,
   }));
+console.log(activeFilter);
 
   
 
   //possibility of causing filtering issues
   const filterByCity2 = (city: string) => {
+
     setActiveFilter((prev) => {
       const updatedFilter: ActiveFilter[] = [
         ...prev,
         { type: "city", value: city },
       ];
-      setFilteredData(
-        updatedFilter.map((item) => item.value).length > 0
-          ? data.filter((item2) =>
-              updatedFilter.map((item3) => item3.value).includes(item2.City)
-            )
-          : data
-      );
+      if (activeFilter.some(filter => filter.type==="date")){
+        setFilteredData(
+          updatedFilter.map((item) => item.value).length > 0
+            ? tempData.filter((item2) =>
+                updatedFilter.map((item3) => item3.value).includes(item2.City)
+              )
+            : filteredData
+        );
+      } else{
+        setFilteredData(
+          updatedFilter.map((item) => item.value).length > 0
+            ? data.filter((item2) =>
+                updatedFilter.map((item3) => item3.value).includes(item2.City)
+              )
+            : filteredData
+        );
+      }
+      
       return updatedFilter;
     });
   };
@@ -276,14 +300,14 @@ const Dashboard = () => {
                 <DatePicker
                   value={
                     selectedDate.firstDate
-                      ? dayjs(selectedDate.firstDate)
-                      : null
+                    ? dayjs(selectedDate.firstDate).startOf('day') 
+                    : null
                   }
                   className="date-inpt"
                   label="Enter From Date"
                   disableFuture
                   onChange={(newValue) =>
-                    setSelectedtDate({ ...selectedDate, firstDate: newValue })
+                    setSelectedtDate({ ...selectedDate, firstDate: newValue ? dayjs(newValue).endOf('day') : null  })
                   }
                   slotProps={{
                     textField: { error: false, size: "small" },
@@ -299,7 +323,7 @@ const Dashboard = () => {
                   label="Enter to Date"
                   disableFuture
                   onChange={(newValue) =>
-                    setSelectedtDate({ ...selectedDate, secondDate: newValue })
+                    setSelectedtDate({ ...selectedDate, secondDate: newValue ? dayjs(newValue).endOf('day') : null  })
                   }
                   slotProps={{
                     textField: { error: false, size: "small" },
@@ -335,7 +359,7 @@ const Dashboard = () => {
                 </button>
               ))}
             </div>
-            <div className="filter-box">
+            {/* <div className="filter-box">
               <input
                 type="text"
                 name="orderID"
@@ -354,7 +378,7 @@ const Dashboard = () => {
               >
                 Submit
               </button>
-            </div>
+            </div> */}
           </div>
           <div className="filters-left"></div>
           <div className="title-chart-container">
@@ -648,7 +672,7 @@ const Dashboard = () => {
                       area: true,
                     },
                   ]}
-                  width={chartWidth }
+                  width={1200}
                   height={200}
                 >
                   <defs>
