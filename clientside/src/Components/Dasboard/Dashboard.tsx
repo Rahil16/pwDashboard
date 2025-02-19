@@ -211,7 +211,7 @@ const Dashboard = () => {
   console.log(LineChartYear);
   
 
-  const salesByMonth = filteredData
+  const salesByMonth = data
     .filter((item) => item.OrderDate.toLocaleString().slice(0, 4) === LineChartYear)
     .reduce((add, item) => {
       const key = item["Month_ID"];
@@ -224,6 +224,8 @@ const Dashboard = () => {
       }
       return add;
     }, {} as Record<string, number>);
+
+    
 
   const chartWidth = Math.max(chartData.length * 50, 600);
 
