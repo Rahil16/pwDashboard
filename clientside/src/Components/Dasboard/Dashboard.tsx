@@ -344,7 +344,7 @@ console.log(activeFilter);
               <input
                 type="text"
                 name="region"
-                placeholder="Region"
+                placeholder="City"
                 className="filter-search"
                 value={filterSearch.region}
                 onChange={handleSearchChange}
@@ -500,12 +500,13 @@ console.log(activeFilter);
                             labelStyle: {
                               fontWeight: "bolder",
                             },
+                            
 
                             labelFontSize: 15,
                             scaleType: "band",
                             data: chartData.map((item) => item.x),
                             dataKey: "City",
-
+                            
                             tickLabelStyle: {
                               fontSize: 8,
                               angle: 45,
@@ -513,6 +514,7 @@ console.log(activeFilter);
                             },
                           },
                         ]}
+                      
                         margin={{
                           left: 70,
                           right: 20,
@@ -528,6 +530,7 @@ console.log(activeFilter);
                             }px,30px)`,
                           },
                         }}
+                        
                         slotProps={{
                           legend: {
                             position: {
@@ -568,7 +571,7 @@ console.log(activeFilter);
                             setclickedOrderNo(clickedItem);
                           }
                         }}
-                        axisHighlight={{ x: "band", y: "none" }}
+                        axisHighlight={{ x: "none", y: "none" }}
                         tooltip={{
                           trigger: "axis",
                         }}
