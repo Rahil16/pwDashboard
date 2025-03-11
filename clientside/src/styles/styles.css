@@ -131,19 +131,19 @@ stroke: #ECECEC; */
   gap: 20px;
   display: grid;
   grid-template-areas:
-    "variations barchart"
+    "barchart barchart"
     "linechart linechart";
   grid-template-columns: 20% 80%;
   margin-top: 10vh;
 }
-.variations {
+/* .variations {
   grid-area: variations;
   border-radius: 1.18775rem;
   background: #fff;
   height: 250px;
   box-shadow: 0px 16px 24px 0px rgba(0, 0, 0, 0.06),
     0px 2px 6px 0px rgba(0, 0, 0, 0.04), 0px 0px 1px 0px rgba(0, 0, 0, 0.04);
-}
+} */
 .barchart {
   height: 23.125rem;
   grid-area: barchart;

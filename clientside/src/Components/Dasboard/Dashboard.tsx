@@ -467,7 +467,7 @@ console.log(activeFilter);
             )}
 
             <div className="chart-grid">
-              <div className="variations"></div>
+              {/* <div className="variations"></div> */}
               <div className="barchart">
                 <div
                   style={{
