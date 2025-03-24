@@ -384,8 +384,8 @@ console.log(activeFilter);
           </div>
           <div className="filters-left"></div>
           <div className="title-chart-container">
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"1%"}}>
             <div className="title">Performance Dashboard</div>
-            <p className="sub-title">Get summary of your sales here,</p>
             <div style={{ display: "flex", justifyContent: "end" }}>
               <IconButton onClick={handleOpen}>
                 <MenuIcon />
@@ -417,6 +417,9 @@ console.log(activeFilter);
                 </MenuItem>
               </Menu>
             </div>
+            </div>
+            <div className="sub-title">Get summary of your sales here,</div>
+            
             {activeFilter.length > 0 && (
               <div style={{ display: "flex", gap: "1%", flexWrap: "wrap" }}>
                 {activeFilter.map((filter, index) => (
@@ -590,7 +593,7 @@ console.log(activeFilter);
                           },
                         ]}
                         width={chartWidth}
-                        height={320}
+                        height={310}
                       />
                     )}
                   </div>
