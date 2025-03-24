@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import { Button, IconButton, Menu, MenuItem } from "@mui/material";
+import { Button, IconButton, Menu, MenuItem, Select } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { axisClasses, LineChart } from "@mui/x-charts";
 import TableOnClick from "../Table/Table";
@@ -47,8 +47,8 @@ interface ActiveFilter {
 const Dashboard = () => {
   const [data, setData] = useState<Order[]>([]);
   const [filteredData, setFilteredData] = useState<Order[]>([]);
-  const [tempData,setTempData] = useState<Order[]>(data);
-  
+  const [tempData, setTempData] = useState<Order[]>(data);
+
   const [filterSearch, setFilterSearch] = useState({
     region: "",
     orderID: "",
@@ -118,19 +118,21 @@ const Dashboard = () => {
       setFilteredData(
         filteredData.filter(
           (item) =>
-            dayjs(item.OrderDate) <= dayjs(selectedDate.secondDate).endOf('day') &&
-            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf('day')
+            dayjs(item.OrderDate) <=
+              dayjs(selectedDate.secondDate).endOf("day") &&
+            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf("day")
         )
-        
       );
 
       setTempData(
         filteredData.filter(
           (item) =>
-            dayjs(item.OrderDate) <= dayjs(selectedDate.secondDate).endOf('day') &&
-            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf('day')
-        ))
-      
+            dayjs(item.OrderDate) <=
+              dayjs(selectedDate.secondDate).endOf("day") &&
+            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf("day")
+        )
+      );
+
       setActiveFilter((prev) => [
         ...prev,
         {
@@ -209,10 +211,11 @@ const Dashboard = () => {
   }));
 
   console.log(LineChartYear);
-  
 
   const salesByMonth = data
-    .filter((item) => item.OrderDate.toLocaleString().slice(0, 4) === LineChartYear)
+    .filter(
+      (item) => item.OrderDate.toLocaleString().slice(0, 4) === LineChartYear
+    )
     .reduce((add, item) => {
       const key = item["Month_ID"];
       const type = item[chartType];
@@ -225,27 +228,22 @@ const Dashboard = () => {
       return add;
     }, {} as Record<string, number>);
 
-    
-
   const chartWidth = Math.max(chartData.length * 50, 600);
 
   const LineChartData = Object.entries(salesByMonth).map(([city, value]) => ({
     x: city,
     y: value,
   }));
-console.log(activeFilter);
-
-  
+  console.log(activeFilter);
 
   //possibility of causing filtering issues
   const filterByCity2 = (city: string) => {
-
     setActiveFilter((prev) => {
       const updatedFilter: ActiveFilter[] = [
         ...prev,
         { type: "city", value: city },
       ];
-      if (activeFilter.some(filter => filter.type==="date")){
+      if (activeFilter.some((filter) => filter.type === "date")) {
         setFilteredData(
           updatedFilter.map((item) => item.value).length > 0
             ? tempData.filter((item2) =>
@@ -253,7 +251,7 @@ console.log(activeFilter);
               )
             : filteredData
         );
-      } else{
+      } else {
         setFilteredData(
           updatedFilter.map((item) => item.value).length > 0
             ? data.filter((item2) =>
@@ -262,7 +260,7 @@ console.log(activeFilter);
             : filteredData
         );
       }
-      
+
       return updatedFilter;
     });
   };
@@ -302,14 +300,17 @@ console.log(activeFilter);
                 <DatePicker
                   value={
                     selectedDate.firstDate
-                    ? dayjs(selectedDate.firstDate).startOf('day') 
-                    : null
+                      ? dayjs(selectedDate.firstDate).startOf("day")
+                      : null
                   }
                   className="date-inpt"
                   label="Enter From Date"
                   disableFuture
                   onChange={(newValue) =>
-                    setSelectedtDate({ ...selectedDate, firstDate: newValue ? dayjs(newValue).endOf('day') : null  })
+                    setSelectedtDate({
+                      ...selectedDate,
+                      firstDate: newValue ? dayjs(newValue).endOf("day") : null,
+                    })
                   }
                   slotProps={{
                     textField: { error: false, size: "small" },
@@ -325,7 +326,12 @@ console.log(activeFilter);
                   label="Enter to Date"
                   disableFuture
                   onChange={(newValue) =>
-                    setSelectedtDate({ ...selectedDate, secondDate: newValue ? dayjs(newValue).endOf('day') : null  })
+                    setSelectedtDate({
+                      ...selectedDate,
+                      secondDate: newValue
+                        ? dayjs(newValue).endOf("day")
+                        : null,
+                    })
                   }
                   slotProps={{
                     textField: { error: false, size: "small" },
@@ -384,42 +390,48 @@ console.log(activeFilter);
           </div>
           <div className="filters-left"></div>
           <div className="title-chart-container">
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"1%"}}>
-            <div className="title">Performance Dashboard</div>
-            <div style={{ display: "flex", justifyContent: "end" }}>
-              <IconButton onClick={handleOpen}>
-                <MenuIcon />
-              </IconButton>
-              <Menu anchorEl={anchorEl} open={isOpen} onClose={handleClose}>
-                <MenuItem
-                  onClick={() => {
-                    handleClose();
-                    setChartType("Sales");
-                  }}
-                >
-                  Sales
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleClose();
-                    setChartType("QuantityOrdered");
-                  }}
-                >
-                  Orders
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleClose();
-                    setChartType("margin");
-                  }}
-                >
-                  Margin
-                </MenuItem>
-              </Menu>
-            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "1%",
+              }}
+            >
+              <div className="title">Performance Dashboard</div>
+              <div style={{ display: "flex", justifyContent: "end" }}>
+                <IconButton onClick={handleOpen}>
+                  <MenuIcon />
+                </IconButton>
+                <Menu anchorEl={anchorEl} open={isOpen} onClose={handleClose}>
+                  <MenuItem
+                    onClick={() => {
+                      handleClose();
+                      setChartType("Sales");
+                    }}
+                  >
+                    Sales
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleClose();
+                      setChartType("QuantityOrdered");
+                    }}
+                  >
+                    Orders
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleClose();
+                      setChartType("margin");
+                    }}
+                  >
+                    Margin
+                  </MenuItem>
+                </Menu>
+              </div>
             </div>
             <div className="sub-title">Get summary of your sales here,</div>
-            
+
             {activeFilter.length > 0 && (
               <div style={{ display: "flex", gap: "1%", flexWrap: "wrap" }}>
                 {activeFilter.map((filter, index) => (
@@ -502,22 +514,24 @@ console.log(activeFilter);
 
                             labelStyle: {
                               fontWeight: "bolder",
+                              transform: "translateY(10px)",
                             },
-                            
 
                             labelFontSize: 15,
                             scaleType: "band",
                             data: chartData.map((item) => item.x),
                             dataKey: "City",
-                            
+
                             tickLabelStyle: {
-                              fontSize: 8,
-                              angle: 45,
-                              textAnchor: "start",
+                              fontSize: 12,
+                              fontFamily: "poppins",
+                              angle: -45,
+                              textAnchor: "end",
+                              dominantBaseline: "central",
                             },
+                            disableTicks: true,
                           },
                         ]}
-                      
                         margin={{
                           left: 70,
                           right: 20,
@@ -532,16 +546,23 @@ console.log(activeFilter);
                               chartWidth * 0.385
                             }px,30px)`,
                           },
+                          // "& .MuiChartsLegend-mark": {
+                          //   display: "none",
+                          // },
                         }}
-                        
                         slotProps={{
                           legend: {
                             position: {
                               horizontal: "left",
                               vertical: "top",
                             },
+                            labelStyle: {
+                              fontSize: "20",
+                              fontFamily: "Roboto Flex",
+                            },
+
                             padding: {
-                              left: 200,
+                              bottom: 10,
                             },
                           },
                         }}
@@ -557,10 +578,17 @@ console.log(activeFilter);
                               fontWeight: "bolder",
                             },
                             labelFontSize: 15,
-                            // min: Math.min(...Object.values(salesByCity)) * 1.1,
-                            // max: Math.max(...Object.values(salesByCity)) * 1.1,
                             tickLabelStyle: {
-                              fontSize: 8,
+                              fontSize: 12,
+                              fontFamily: "poppins",
+                            },
+                            valueFormatter: (value) => {
+                              if (value >= 1000000) {
+                                return `${(value / 1000000).toFixed(1)}M`;
+                              } else if (value >= 1000) {
+                                return `${(value / 1000).toFixed(1)}K`;
+                              }
+                              return value.toString();
                             },
                           },
                         ]}
@@ -593,7 +621,7 @@ console.log(activeFilter);
                           },
                         ]}
                         width={chartWidth}
-                        height={310}
+                        height={320}
                       />
                     )}
                   </div>
@@ -613,11 +641,27 @@ console.log(activeFilter);
 
               <div className="linechart">
                 <div className="dropdownDiv">
-                <select value={LineChartYear} onChange={(e) => setLineChartYear(e.target.value)} className="dropdown">
-                  <option value="2021" >2021</option>
-                  <option value="2022" >2022</option>
-                  <option value="2023" selected >2023</option>
-                </select>
+                  {/* <select
+                    value={LineChartYear}
+                    onChange={(e) => setLineChartYear(e.target.value)}
+                    className="dropdown"
+                  >
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023" selected>
+                      2023
+                    </option>
+                  </select> */}
+                  <Select
+                    value={LineChartYear}
+                    onChange={(e) => setLineChartYear(e.target.value)}
+                    className="dropdown"
+                    autoWidth
+                  >
+                    <MenuItem value="2021">2021</MenuItem>
+                    <MenuItem value="2022">2022</MenuItem>
+                    <MenuItem value="2023" selected>2023</MenuItem>
+                  </Select>
                 </div>
                 <LineChart
                   xAxis={[
@@ -638,9 +682,14 @@ console.log(activeFilter);
                         "Nov",
                         "Dec",
                       ],
+
                       tickLabelStyle: {
-                        fontSize: 10,
+                        fontSize: 12,
+                        fontFamily: "poppins",
+                        textAnchor: "middle",
                       },
+                      disableTicks: true,
+                      tickPlacement: "middle",
                     },
                   ]}
                   slotProps={{
@@ -649,24 +698,47 @@ console.log(activeFilter);
                         horizontal: "left",
                         vertical: "top",
                       },
+                      labelStyle: {
+                        fontSize: "20",
+                        fontFamily: "Roboto Flex",
+                      },
                       padding: {
-                        left: 200,
+                        bottom: 10,
+                        left: 60,
                       },
                     },
                   }}
-                  margin={{left:100}}
-                  yAxis={[{
-                    scaleType:"linear",
-                    label:"Sales",
-                    tickFontSize:10
-                  }]}
+                  margin={{ left: 100 }}
+                  yAxis={[
+                    {
+                      scaleType: "linear",
+                      label: "Sales",
+                      labelStyle: {
+                        fontFamily: "Roboto Flex",
+                        fontSize: 15,
+                      },
+                      tickFontSize: 12,
+                      tickLabelStyle: {
+                        fontSize: 12,
+                        fontFamily: "poppins",
+                      },
+                      valueFormatter: (value) => {
+                        if (value >= 1000000) {
+                          return `${(value / 1000000).toFixed(1)}M`;
+                        } else if (value >= 1000) {
+                          return `${(value / 1000).toFixed(1)}K`;
+                        }
+                        return value.toString();
+                      },
+                    },
+                  ]}
                   sx={{
                     "& .MuiAreaElement-series-Sales": {
                       fill: "url(#myGradient)",
                     },
                     [`.${axisClasses.left} .${axisClasses.label}`]: {
                       transform: "translateX(-30px)",
-                      fontWeight:"bold"
+                      fontWeight: "bold",
                     },
                   }}
                   series={[
@@ -680,7 +752,7 @@ console.log(activeFilter);
                       area: true,
                     },
                   ]}
-                  width={1200}
+                  width={900}
                   height={200}
                 >
                   <defs>
