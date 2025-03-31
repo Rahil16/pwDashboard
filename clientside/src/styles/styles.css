@@ -1,11 +1,9 @@
 .dashboard {
-  position: absolute;
-  width: 90vw;
+  position: relative;
+  width: 90%;
   height: fit-content;
-  /* left: 61.7px; */
   margin: 2% 5%;
   padding: 3% 0%;
-  /* top: 148.25px; */
   background: linear-gradient(
     121.32deg,
     #ffffff 10.96%,
@@ -31,22 +29,32 @@
   color: #404040;
 }
 .filters-left {
-  position: absolute;
   width: 0.0625rem;
-  /* height: 903.5px; */
+  position: absolute;
+  top: 0%;
+  left: 260px;
+  align-self: auto;
   height: 100%;
-  /* left: 312.24px; */
-  left: 18vw;
-  top: 0vh;
-  /* top: 148.25px; */
-  /* Vector 40 */
-  /* width: 0.0625rem; */
-  /* height: 56.46869rem; */
-  flex-shrink: 0;
-  /* background: #f8f8f8; */
   background: #aeaeae;
   opacity: 0.2;
-  margin-left: 1%;
+}
+/* Larger laptop screens */
+@media screen and (min-width: 1367px) {
+  .filters-left {
+    left: 260px;
+  }
+}
+
+/* Very large laptop screens */
+@media screen and (min-width: 1601px) {
+  .filters-left {
+    left: 270px;
+  }
+}
+@media screen and (min-width: 2200px) {
+  .filters-left {
+    left: 260px;
+  }
 }
 .filter-container {
   display: flex;

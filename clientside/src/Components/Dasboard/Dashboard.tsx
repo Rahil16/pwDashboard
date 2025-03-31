@@ -189,6 +189,7 @@ const Dashboard = () => {
     setFilteredData(newFilteredData);
   };
 
+
   const salesByCity = filteredData.reduce((add, item) => {
     const key = item[chartFilter];
     const type = item[chartType];
@@ -265,10 +266,16 @@ const Dashboard = () => {
     });
   };
 
+  const filteredTableData = chartFilter === "City" 
+  ? data.filter((item) => item.City === clickedOrderNo)
+  : chartFilter === "Product" 
+  ? data.filter((item) => item.Product === clickedOrderNo)
+  : data.filter((item) => item.Territory === clickedOrderNo);
   return (
     <div>
       <div className="dashboard">
         <div style={{ display: "flex" }}>
+          <div className="filters-left"></div>
           <div className="filter-container">
             <div className="filter-box">
               <label className="date-label">Filter By:</label>
@@ -367,28 +374,8 @@ const Dashboard = () => {
                 </button>
               ))}
             </div>
-            {/* <div className="filter-box">
-              <input
-                type="text"
-                name="orderID"
-                value={filterSearch.orderID}
-                placeholder="Order Id"
-                className="filter-search"
-                onChange={handleSearchChange}
-              />
-              <button
-                type="submit"
-                onClick={() => {
-                  filterByOrderId(Number(filterSearch.orderID));
-                }}
-                className="date-submitbtn"
-                style={{ width: "90%", marginTop: "5%" }}
-              >
-                Submit
-              </button>
-            </div> */}
           </div>
-          <div className="filters-left"></div>
+
           <div className="title-chart-container">
             <div
               style={{
@@ -496,9 +483,7 @@ const Dashboard = () => {
                     {clickedOrderNo ? (
                       <div>
                         <TableOnClick
-                          data={data.filter(
-                            (item) => item.City === clickedOrderNo
-                          )}
+                           data={filteredTableData}
                         />
                       </div>
                     ) : (
@@ -515,7 +500,11 @@ const Dashboard = () => {
                             labelStyle: {
                               fontWeight: "bolder",
                               transform: "translateY(10px)",
+                              fontFamily: "Roboto Flex",
+                              fontSize: 15,
+                              fill: "#AEAEAE",
                             },
+                            disableLine: true,
 
                             labelFontSize: 15,
                             scaleType: "band",
@@ -528,16 +517,24 @@ const Dashboard = () => {
                               angle: -45,
                               textAnchor: "end",
                               dominantBaseline: "central",
+                              fill: "#7B91B0",
                             },
                             disableTicks: true,
                           },
                         ]}
+                        grid={{
+                          horizontal: true,
+                        }}
                         margin={{
                           left: 70,
                           right: 20,
                           bottom: 80,
                         }}
                         sx={{
+                          "& .MuiChartsAxis-gridLine": {
+                            stroke: "#EFF1F3",
+                            fill: "#D9D9D9",
+                          },
                           [`.${axisClasses.left} .${axisClasses.label}`]: {
                             transform: "translateX(-30px)",
                           },
@@ -546,9 +543,6 @@ const Dashboard = () => {
                               chartWidth * 0.385
                             }px,30px)`,
                           },
-                          // "& .MuiChartsLegend-mark": {
-                          //   display: "none",
-                          // },
                         }}
                         slotProps={{
                           legend: {
@@ -559,11 +553,14 @@ const Dashboard = () => {
                             labelStyle: {
                               fontSize: "20",
                               fontFamily: "Roboto Flex",
+                              fontWeight: "semi-bold",
                             },
 
                             padding: {
                               bottom: 10,
                             },
+                            itemMarkWidth: 0,
+                            itemMarkHeight: 0,
                           },
                         }}
                         yAxis={[
@@ -576,11 +573,19 @@ const Dashboard = () => {
                                 : "Total Margins",
                             labelStyle: {
                               fontWeight: "bolder",
+                              fontFamily: "Roboto Flex",
+                              fontSize: 15,
+                              fill: "#AEAEAE",
                             },
+                            disableLine: true,
+                            disableTicks: true,
                             labelFontSize: 15,
                             tickLabelStyle: {
                               fontSize: 12,
                               fontFamily: "poppins",
+                              fill: "#7B91B0",
+                              textAnchor: "end",
+                              marginRight: "10px",
                             },
                             valueFormatter: (value) => {
                               if (value >= 1000000) {
@@ -592,12 +597,13 @@ const Dashboard = () => {
                             },
                           },
                         ]}
-                        onItemClick={(_e, itemIndex) => {
-                          const clickedItem =
-                            Object.keys(salesByCity)[itemIndex.dataIndex];
-                          console.log(
-                            Object.keys(salesByCity)[itemIndex.dataIndex]
-                          );
+                        onItemClick={(_e, itemData) => {
+                          
+                            // const clickedCity = chartData[itemIndex];
+                            // console.log(chartData[itemIndex].x);
+                            console.log(itemData.dataIndex);
+                            console.log(chartData[itemData.dataIndex].x);
+                            const clickedItem = chartData[itemData.dataIndex].x;
                           if (clickedItem) {
                             setclickedOrderNo(clickedItem);
                           }
@@ -610,6 +616,7 @@ const Dashboard = () => {
                         series={[
                           {
                             data: chartData.map((item) => item.y),
+
                             label: `${
                               chartType === "Sales"
                                 ? "Total Sales"
@@ -641,17 +648,6 @@ const Dashboard = () => {
 
               <div className="linechart">
                 <div className="dropdownDiv">
-                  {/* <select
-                    value={LineChartYear}
-                    onChange={(e) => setLineChartYear(e.target.value)}
-                    className="dropdown"
-                  >
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    <option value="2023" selected>
-                      2023
-                    </option>
-                  </select> */}
                   <Select
                     value={LineChartYear}
                     onChange={(e) => setLineChartYear(e.target.value)}
@@ -660,7 +656,9 @@ const Dashboard = () => {
                   >
                     <MenuItem value="2021">2021</MenuItem>
                     <MenuItem value="2022">2022</MenuItem>
-                    <MenuItem value="2023" selected>2023</MenuItem>
+                    <MenuItem value="2023" selected>
+                      2023
+                    </MenuItem>
                   </Select>
                 </div>
                 <LineChart
@@ -682,13 +680,15 @@ const Dashboard = () => {
                         "Nov",
                         "Dec",
                       ],
-
+                      disableLine: true,
+                      disableTicks: true,
                       tickLabelStyle: {
                         fontSize: 12,
                         fontFamily: "poppins",
                         textAnchor: "middle",
+                        fill: "#2B3034",
+                        opacity: "40%",
                       },
-                      disableTicks: true,
                       tickPlacement: "middle",
                     },
                   ]}
@@ -698,34 +698,54 @@ const Dashboard = () => {
                         horizontal: "left",
                         vertical: "top",
                       },
+
                       labelStyle: {
-                        fontSize: "20",
+                        fontSize: "14",
                         fontFamily: "Roboto Flex",
+                        fill: "#404040",
                       },
                       padding: {
-                        bottom: 10,
                         left: 60,
+                        bottom: 10,
                       },
+                      itemMarkWidth: 0,
+                      itemMarkHeight: 0,
                     },
+                  }}
+                  grid={{
+                    horizontal: true,
                   }}
                   margin={{ left: 100 }}
                   yAxis={[
                     {
                       scaleType: "linear",
-                      label: "Sales",
+                      label: `${
+                        chartType === "Sales"
+                          ? "Sales"
+                          : chartType === "QuantityOrdered"
+                          ? "Orders"
+                          : "Margins"
+                      }`,
                       labelStyle: {
                         fontFamily: "Roboto Flex",
                         fontSize: 15,
+                        fill: "#AEAEAE",
                       },
+                      disableLine: true,
+                      disableTicks: true,
                       tickFontSize: 12,
                       tickLabelStyle: {
                         fontSize: 12,
-                        fontFamily: "poppins",
+                        fontFamily: "Nunito Sans",
+                        fill: "#2B3034",
+                        opacity: "40%",
                       },
                       valueFormatter: (value) => {
                         if (value >= 1000000) {
                           return `${(value / 1000000).toFixed(1)}M`;
                         } else if (value >= 1000) {
+                          return `${(value / 1000).toFixed(1)}K`;
+                        } else if (value <= 1000) {
                           return `${(value / 1000).toFixed(1)}K`;
                         }
                         return value.toString();
@@ -733,6 +753,10 @@ const Dashboard = () => {
                     },
                   ]}
                   sx={{
+                    "& .MuiChartsAxis-gridLine": {
+                      stroke: "#EAEAEA",
+                      fill: "#FFFFFF",
+                    },
                     "& .MuiAreaElement-series-Sales": {
                       fill: "url(#myGradient)",
                     },
@@ -745,14 +769,19 @@ const Dashboard = () => {
                     {
                       id: "Sales",
                       data: LineChartData.map((item) => item.y),
-                      label: "Daily Sales",
+                      label: `${
+                        chartType === "Sales"
+                          ? "Daily Sales"
+                          : chartType === "QuantityOrdered"
+                          ? "Daily Orders"
+                          : "Daily Margins"
+                      }`,
                       color: "#0095FF",
                       showMark: false,
                       curve: "linear",
                       area: true,
                     },
                   ]}
-                  width={900}
                   height={200}
                 >
                   <defs>
