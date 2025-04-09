@@ -6,13 +6,14 @@ import env from "dotenv";
 
 const app = express();
 env.config();
-const port = process.env.PORT || 8080;
+const port = 3000 || 8080;
 app.use(cors());
 app.use(bodyParser.json());
 
 const db = mysql.createConnection({
   host: process.env.MS_HOST,
   user: process.env.MS_USER,
+  port: process.env.MS_PORT,
   password: process.env.MS_PASS,
   database: process.env.MS_DB,
   connectTimeout: 60000, // Increase timeout to 60 seconds
