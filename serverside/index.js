@@ -17,7 +17,7 @@ const db = mysql.createConnection({
   database: process.env.MS_DB,
   connectTimeout: 60000, // Increase timeout to 60 seconds
   ssl: {
-    rejectUnauthorized: true,
+    rejectUnauthorized: false,
   },
 });
 
