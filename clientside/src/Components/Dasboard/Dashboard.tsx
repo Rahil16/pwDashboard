@@ -84,7 +84,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://app-2b6ed3f7-5352-4055-9ac8-7446afa8a1a3.cleverapps.io/orders"
+          "https://pwdashboard.onrender.com/orders"
         );
         setData(response.data);
       } catch (error) {
