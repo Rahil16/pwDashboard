@@ -31,10 +31,11 @@ db.connect((err) => {
 });
 
 app.get("/orders", (req, res) => {
-  db.query("SELECT * FROM completedata;", (err, results) => {
+  db.query("SELECT * FROM sales_data;", (err, results) => {
     if (err) {
       return res.status(500).send(err);
     }
+    console.log("Results: ", results);
     res.json(results);
   });
 });
