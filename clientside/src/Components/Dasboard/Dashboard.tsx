@@ -295,9 +295,9 @@ const Dashboard = () => {
   const barMinWidth = 50;
   const minChartWidth = containerWidth;
   const chartWidth =
-  chartData.length > 12
-    ? Math.max(chartData.length * barMinWidth, minChartWidth)
-    : minChartWidth;
+    chartData.length > 12
+      ? Math.max(chartData.length * barMinWidth, minChartWidth)
+      : minChartWidth;
 
   const LineChartData = Object.entries(salesByMonth).map(([city, value]) => ({
     x: city,
@@ -452,8 +452,8 @@ const Dashboard = () => {
                 Submit
               </button>
             </div>
-            <div className="filter-box-n">
-              <input
+            <div className="city-filter-box">
+            <input
                 type="text"
                 name="region"
                 placeholder="City"
@@ -461,6 +461,8 @@ const Dashboard = () => {
                 value={filterSearch.region}
                 onChange={handleSearchChange}
               />
+            <div className="filter-box-n">
+              
               {searchUniqueCity.map((item, index) => (
                 <button
                   className="filter-btn"
@@ -473,6 +475,7 @@ const Dashboard = () => {
                 </button>
               ))}
             </div>
+            </div>
           </div>
 
           <div className="title-chart-container">
@@ -484,15 +487,21 @@ const Dashboard = () => {
               }}
             >
               <div className="title">Performance Dashboard</div>
-              <div style={{ display: "flex", justifyContent: "end" }}>
+              <div style={{ position: "fixed", zIndex: 10, right: "10vw" }}>
                 <IconButton
                   onClick={handleOpen}
                   size="large"
-                  aria-haspopup="true"
+                  // aria-haspopup="true"
+                  // sx={{
+                  //   padding: "8px",
+                  //   "&:active": {
+                  //     transform: "none", // Prevent the button from moving when clicked
+                  //   },
+                  // }}
                 >
                   {/* <MenuIcon sx={{ width: 32, height: 32, position:isOpen? "fixed": "" }} /> */}
-                  {/* <MenuIcon sx={{ width: 32, height: 32, position:"fixed" }} /> */}
-                  <MenuIcon sx={{ width: 32, height: 32}} />
+                  <MenuIcon sx={{ width: 32, height: 32 }} />
+                  {/* <MenuIcon sx={{ width: 32, height: 32}} /> */}
                 </IconButton>
                 <Menu
                   anchorEl={anchorEl}
@@ -500,6 +509,7 @@ const Dashboard = () => {
                   onClose={handleClose}
                   anchorOrigin={{ vertical: "top", horizontal: "right" }}
                   transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  disableScrollLock={true}
                   slotProps={{
                     paper: {
                       elevation: 0,
@@ -510,8 +520,8 @@ const Dashboard = () => {
                         "& .MuiAvatar-root": {
                           width: 32,
                           height: 32,
-                          ml: -0.5,
-                          mr: 1,
+                          
+                          
                         },
                       },
                     },
@@ -615,7 +625,7 @@ const Dashboard = () => {
                         border: "none",
                         fontWeight: "bolder",
                         fontFamily: "Roboto Flex",
-                        fontSize: 15,
+                        fontSize: 20,
                         color: "#AEAEAE",
                         padding: "4px 8px",
                         pointerEvents: "none",
@@ -642,7 +652,7 @@ const Dashboard = () => {
                         border: "none",
                         fontWeight: "bolder",
                         fontFamily: "Roboto Flex",
-                        fontSize: 15,
+                        fontSize: 20,
                         color: "#AEAEAE",
                         paddingBottom: "2%",
                         pointerEvents: "none",
@@ -945,7 +955,6 @@ const Dashboard = () => {
                           <ChartsGrid horizontal />
                           <ChartsAxisHighlight x="none" y="none" />
                           <BarPlot
-                            
                             onItemClick={(_e, itemData) => {
                               // const clickedCity = chartData[itemIndex];
                               // console.log(chartData[itemIndex].x);
@@ -956,7 +965,6 @@ const Dashboard = () => {
                               if (clickedItem) {
                                 setclickedOrderNo(clickedItem);
                               }
-                                                          
                             }}
                           />
                           <LinePlot />
@@ -1057,7 +1065,7 @@ const Dashboard = () => {
                       label: `${"Sales"}`,
                       labelStyle: {
                         fontFamily: "Roboto Flex",
-                        fontSize: 15,
+                        fontSize: 18,
                         fill: "#AEAEAE",
                       },
                       disableLine: true,
