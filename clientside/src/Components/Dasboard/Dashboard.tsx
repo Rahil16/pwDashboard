@@ -562,12 +562,14 @@ const Dashboard = () => {
 
             <div className="chart-grid">
               {/* <div className="variations"></div> */}
-              <div className="barchart" style={{ position: "relative"}}>
+              <div className="barchart" style={{ position: "relative" }}>
                 {/* Sticky Y-axis label */}
-                <div
+                {!clickedOrderNo && (
+                  <>
+                  <div
                   style={{
                     position: "absolute",
-                    left: "2%",
+                    left: "3%",
                     top: "60%",
                     transform: "translateY(-50%) rotate(-90deg)",
                     transformOrigin: "left center",
@@ -615,6 +617,8 @@ const Dashboard = () => {
                     ? "Products"
                     : "Territories"}
                 </div>
+                </>
+                )}
 
                 <div
                   style={{
@@ -625,6 +629,9 @@ const Dashboard = () => {
                     paddingBottom: "40px",
                   }}
                 >
+                  
+                
+                
                   <div style={tableStyle}>
                     {clickedOrderNo ? (
                       <div>
@@ -903,8 +910,20 @@ const Dashboard = () => {
                           }}
                         >
                           <ChartsGrid horizontal />
-                          <ChartsAxisHighlight x="line" />
-                          <BarPlot />
+                          <ChartsAxisHighlight x="none" y="none" />
+                          <BarPlot
+                            onItemClick={(_e, itemData) => {
+                              // const clickedCity = chartData[itemIndex];
+                              // console.log(chartData[itemIndex].x);
+                              console.log(itemData.dataIndex);
+                              console.log(chartData[itemData.dataIndex].x);
+                              const clickedItem =
+                                chartData[itemData.dataIndex].x;
+                              if (clickedItem) {
+                                setclickedOrderNo(clickedItem);
+                              }
+                            }}
+                          />
                           <LinePlot />
                           <ChartsTooltip trigger="axis" />
                           <ChartsXAxis axisId="x" />
