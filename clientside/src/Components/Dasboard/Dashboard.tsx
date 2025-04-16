@@ -290,7 +290,7 @@ const Dashboard = () => {
       return add;
     }, {} as Record<string, number>);
 
-  const chartWidth = Math.max(chartData.length * 50, 800);
+  const chartWidth = Math.max(chartData.length * 50, 1000);
 
   const LineChartData = Object.entries(salesByMonth).map(([city, value]) => ({
     x: city,
@@ -626,7 +626,7 @@ const Dashboard = () => {
                     overflowY: "hidden",
                     height: "100%",
                     width: "100%",
-                    paddingBottom: "40px",
+                    paddingBottom: "400px",
                   }}
                 >
                   
