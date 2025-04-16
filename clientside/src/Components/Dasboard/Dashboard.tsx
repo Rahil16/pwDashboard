@@ -241,17 +241,40 @@ const Dashboard = () => {
     return add;
   }, {} as Record<string, number>);
 
+  
+  
+  const SalesByGoal = filteredData.reduce((add, item) => {
+    const key = item[chartFilter];
+    const type = item["Sales_Goal"];
+    
+    if (add[key]) {
+      add[key] += Number(type as unknown as string);
+    } else {
+      add[key] = Number(type as unknown as string);
+    }
+    return add;
+  }, {} as Record<string, number>);
+  
   const sortedSalesByCity = Object.entries(salesByCity).sort(
     ([, valueA], [, valueB]) => valueB - valueA
   );
+  
 
+  const sortedSalesByGoal = Object.entries(SalesByGoal).sort(
+    ([, valueA], [, valueB]) => valueB - valueA
+  );
   const chartData = sortedSalesByCity.map(([city, value]) => {
-    const match = filteredData.find((item) => item[chartFilter] === city);
     return {
-    x: city,
-    y: value,
-    salesGoal: match ? match.Sales_Goal : undefined,
-    }
+      x: city,
+      y: value,
+    };
+  });
+
+  const chartDataWithGoal = sortedSalesByGoal.map(([city, value]) => {
+    return {
+      x: city,
+      y: value,
+    };
   });
 
   const salesByMonth = data
@@ -260,7 +283,7 @@ const Dashboard = () => {
     )
     .reduce((add, item) => {
       const key = item["MONTH_ID"];
-      const type = item[chartType];
+      const type = item["SALES"];
 
       if (add[key]) {
         add[key] += Number(type as unknown as string);
@@ -270,7 +293,7 @@ const Dashboard = () => {
       return add;
     }, {} as Record<string, number>);
 
-  const chartWidth = Math.max(chartData.length * 50, 600);
+  const chartWidth = Math.max(chartData.length * 50, 800);
 
   const LineChartData = Object.entries(salesByMonth).map(([city, value]) => ({
     x: city,
@@ -305,9 +328,7 @@ const Dashboard = () => {
       return updatedFilter;
     });
   };
-  console.log(Array(chartData.map((item) =>
-    typeof item.y === "number" ? item.y : null)));
-  
+
   const filteredTableData =
     chartFilter === "CITY"
       ? data.filter((item) => item.CITY === clickedOrderNo)
@@ -315,6 +336,7 @@ const Dashboard = () => {
       ? data.filter((item) => item.Product === clickedOrderNo)
       : data.filter((item) => item.TERRITORY === clickedOrderNo);
 
+  console.log("chartData", chartData.map((item) => item.y));
   const series: AllSeriesType[] = [
     {
       type: "bar" as const,
@@ -328,16 +350,16 @@ const Dashboard = () => {
       } by ${chartFilter}`,
       color: "#BFE8FF",
     },
-    {
+    ...(chartType === "SALES"
+      ? 
+    [{
       type: "line" as const,
-      data: chartData.map((item) =>
-        typeof item.salesGoal === "number" ? item.salesGoal : null
-      ),
-      label: "Trend",
-      color: "#0095FF",
+      data: chartDataWithGoal.map((item) => item.y),
+      label: "Sales Goal",
+      color: "#F93C65",
       showMark: false,
-      curve: "linear",
-    },
+      curve: "linear" as const,
+    },]:[])
   ];
   return (
     <div>
@@ -696,162 +718,175 @@ const Dashboard = () => {
                       //   width={chartWidth}
                       //   height={320}
                       // />
+                      <div>
+                        <div
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: 20,
+                            marginBottom: 12,
+                            fontFamily: "Roboto Flex",
+                            color: "#404040",
+                          }}
+                        >
+                          {chartType === "SALES"
+                            ? "Total Sales"
+                            : chartType === "QUANTITYORDERED"
+                            ? "Total Orders"
+                            : "Total Margins"}{" "}
+                          by {chartFilter}
+                        </div>
+                        <ResponsiveChartContainer
+                          series={series}
+                          height={320}
+                          width={chartWidth}
+                          margin={{
+                            left: 70,
+                            right: 20,
+                            bottom: 80,
+                          }}
+                          xAxis={[
+                            {
+                              id: "x",
+                              data: chartData.map((item) => item.x),
+                              scaleType: "band",
 
-                      <ResponsiveChartContainer
-                        series={series}
-                        height={320}
-                        width={chartWidth}
-                        margin={{
-                          left: 70,
-                          right: 20,
-                          bottom: 80,
-                        }}
-                        
-                        xAxis={[
-                          {
-                            id: "x",
-                            data: chartData.map((item) => item.x),
-                            scaleType: "band",
-                            
-                            label:
+                              label:
+                                chartFilter === "CITY"
+                                  ? "Cities"
+                                  : chartFilter === "Product"
+                                  ? "Products"
+                                  : "Territories",
+                              labelStyle: {
+                                fontWeight: "bolder",
+                                transform: "translateY(10px)",
+                                fontFamily: "Roboto Flex",
+                                fontSize: 15,
+                                fill: "#AEAEAE",
+                              },
+                              tickLabelStyle: {
+                                fontSize: 12,
+                                fontFamily: "poppins",
+                                angle: -45,
+                                textAnchor: "end",
+                                dominantBaseline: "central",
+                                fill: "#7B91B0",
+                              },
+                              disableLine: true,
+                              disableTicks: true,
+                            },
+                          ]}
+                          yAxis={[
+                            {
+                              id: "y",
+                              scaleType: "linear",
+                              label:
+                                chartType === "SALES"
+                                  ? "Total Sales"
+                                  : chartType === "QUANTITYORDERED"
+                                  ? "Total Orders"
+                                  : "Total Margins",
+                              labelStyle: {
+                                fontWeight: "bolder",
+                                fontFamily: "Roboto Flex",
+                                fontSize: 15,
+                                fill: "#AEAEAE",
+                              },
+                              disableLine: true,
+
+                              disableTicks: true,
+
+                              labelFontSize: 15,
+                              tickLabelStyle: {
+                                fontSize: 12,
+                                fontFamily: "poppins",
+                                fill: "#7B91B0",
+                                textAnchor: "end",
+                                marginRight: "10px",
+                              },
+                              valueFormatter: (value) => {
+                                if (value === 0) return "0";
+                                if (value >= 1000000) {
+                                  return `${(value / 1000000).toFixed(1)}M`;
+                                } else if (value >= 1000 || value <= -1000) {
+                                  return `${(value / 1000).toFixed(1)}K`;
+                                }
+                                return value?.toString() ?? "";
+                              },
+                            },
+                          ]}
+                          sx={{
+                            // Axis grid lines
+                            "& .MuiChartsAxis-gridLine": {
+                              stroke: "#EFF1F3",
+                              fill: "#D9D9D9",
+                            },
+                            // Left axis label
+                            [`.${axisClasses.left} .${axisClasses.label}`]: {
+                              transform: "translateX(-30px)",
+                              fontWeight: "bolder",
+                              fontFamily: "Roboto Flex",
+                              fontSize: 15,
+                              fill: "#AEAEAE",
+                            },
+                            // Bottom axis label
+                            [`.${axisClasses.bottom} .${axisClasses.label}`]: {
+                              transform: `translate(-${
+                                chartWidth * 0.385
+                              }px,30px)`,
+                              fontWeight: "bolder",
+                              fontFamily: "Roboto Flex",
+                              fontSize: 15,
+                              fill: "#AEAEAE",
+                            },
+                            // Legend root
+                            "& .MuiChartsLegend-root": {
+                              position: "absolute",
+                              left: 0,
+                              top: 0,
+                              paddingBottom: 10,
+                            },
+                            // Legend label
+                            "& .MuiChartsLegend-label": {
+                              fontSize: 20,
+                              fontFamily: "Roboto Flex",
+                              fontWeight: 600,
+                            },
+                            // Hide legend item marks
+                            "& .MuiChartsLegend-mark": {
+                              width: 0,
+                              height: 0,
+                            },
+                          }}
+                        >
+                          <ChartsGrid horizontal />
+                          <ChartsAxisHighlight x="line" />
+                          <BarPlot />
+                          <LinePlot />
+                          <ChartsTooltip trigger="axis" />
+                          <ChartsXAxis
+                            label={
                               chartFilter === "CITY"
                                 ? "Cities"
                                 : chartFilter === "Product"
                                 ? "Products"
-                                : "Territories",
-                            labelStyle: {
-                              fontWeight: "bolder",
-                              transform: "translateY(10px)",
-                              fontFamily: "Roboto Flex",
-                              fontSize: 15,
-                              fill: "#AEAEAE",
-                            },
-                            tickLabelStyle: {
-                              fontSize: 12,
-                              fontFamily: "poppins",
-                              angle: -45,
-                              textAnchor: "end",
-                              dominantBaseline: "central",
-                              fill: "#7B91B0",
-                            },
-                            disableLine: true,
-                            disableTicks: true,
-                          },
-                        ]}
-                        yAxis={[
-                          {
-                            id: "y",
-                            scaleType: "linear",
-                            label:
+                                : "Territories"
+                            }
+                            position="bottom"
+                            axisId="x"
+                          />
+                          <ChartsYAxis
+                            label={
                               chartType === "SALES"
                                 ? "Total Sales"
                                 : chartType === "QUANTITYORDERED"
                                 ? "Total Orders"
-                                : "Total Margins",
-                            labelStyle: {
-                              fontWeight: "bolder",
-                              fontFamily: "Roboto Flex",
-                              fontSize: 15,
-                              fill: "#AEAEAE",
-                              
-                            },
-                            disableLine: true,
-                            
-                            disableTicks: true,
-                            
-                            labelFontSize: 15,
-                            tickLabelStyle: {
-                              fontSize: 12,
-                              fontFamily: "poppins",
-                              fill: "#7B91B0",
-                              textAnchor: "end",
-                              marginRight: "10px",
-                            },
-                            valueFormatter: (value) => {
-                              if (value >= 1000000) {
-                                return `${(value / 1000000).toFixed(1)}M`;
-                              } else if (value >= 1000) {
-                                return `${(value / 1000).toFixed(1)}K`;
-                              }
-                              return value?.toString() ?? "";
-                            },
-                            
-                          },
-                          
-                        ]}
-                        
-                        sx={{
-                          // Axis grid lines
-                          "& .MuiChartsAxis-gridLine": {
-                            stroke: "#EFF1F3",
-                            fill: "#D9D9D9",
-                          },
-                          // Left axis label
-                          [`.${axisClasses.left} .${axisClasses.label}`]: {
-                            transform: "translateX(-30px)",
-                            fontWeight: "bolder",
-                            fontFamily: "Roboto Flex",
-                            fontSize: 15,
-                            fill: "#AEAEAE",
-                          },
-                          // Bottom axis label
-                          [`.${axisClasses.bottom} .${axisClasses.label}`]: {
-                            transform: `translate(-${
-                              chartWidth * 0.385
-                            }px,30px)`,
-                            fontWeight: "bolder",
-                            fontFamily: "Roboto Flex",
-                            fontSize: 15,
-                            fill: "#AEAEAE",
-                          },
-                          // Legend root
-                          "& .MuiChartsLegend-root": {
-                            position: "absolute",
-                            left: 0,
-                            top: 0,
-                            paddingBottom: 10,
-                          },
-                          // Legend label
-                          "& .MuiChartsLegend-label": {
-                            fontSize: 20,
-                            fontFamily: "Roboto Flex",
-                            fontWeight: 600,
-                          },
-                          // Hide legend item marks
-                          "& .MuiChartsLegend-mark": {
-                            width: 0,
-                            height: 0,
-                          },
-                        }}
-                      >
-                        <ChartsGrid horizontal />
-                        <ChartsAxisHighlight x="line" />
-                        <BarPlot />
-                        <LinePlot />
-                        <ChartsTooltip trigger="axis" />
-                        <ChartsXAxis
-                          label={
-                            chartFilter === "CITY"
-                              ? "Cities"
-                              : chartFilter === "Product"
-                              ? "Products"
-                              : "Territories"
-                          }
-                          position="bottom"
-                          axisId="x"
-                        />
-                        <ChartsYAxis
-                          label={
-                            chartType === "SALES"
-                              ? "Total Sales"
-                              : chartType === "QUANTITYORDERED"
-                              ? "Total Orders"
-                              : "Total Margins"
-                          }
-                          position="left"
-                          axisId="y"
-                        />
-                      </ResponsiveChartContainer>
+                                : "Total Margins"
+                            }
+                            position="left"
+                            axisId="y"
+                          />
+                        </ResponsiveChartContainer>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -941,13 +976,7 @@ const Dashboard = () => {
                   yAxis={[
                     {
                       scaleType: "linear",
-                      label: `${
-                        chartType === "SALES"
-                          ? "Sales"
-                          : chartType === "QUANTITYORDERED"
-                          ? "Orders"
-                          : "Margins"
-                      }`,
+                      label: `${"Sales"}`,
                       labelStyle: {
                         fontFamily: "Roboto Flex",
                         fontSize: 15,
@@ -991,13 +1020,7 @@ const Dashboard = () => {
                     {
                       id: "Sales",
                       data: LineChartData.map((item) => item.y),
-                      label: `${
-                        chartType === "SALES"
-                          ? "Daily Sales"
-                          : chartType === "QUANTITYORDERED"
-                          ? "Daily Orders"
-                          : "Daily Margins"
-                      }`,
+                      label: `${"Daily Sales"}`,
                       color: "#0095FF",
                       showMark: false,
                       curve: "linear",
