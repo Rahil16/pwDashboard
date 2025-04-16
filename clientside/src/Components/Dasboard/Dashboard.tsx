@@ -290,7 +290,14 @@ const Dashboard = () => {
       return add;
     }, {} as Record<string, number>);
 
-  const chartWidth = Math.max(chartData.length * 50, 2000);
+  // const chartWidth = Math.max(chartData.length * 50, 2000);
+  const containerWidth = window.innerWidth * 0.8;
+  const barMinWidth = 50;
+  const minChartWidth = containerWidth;
+  const chartWidth =
+  chartData.length > 12
+    ? Math.max(chartData.length * barMinWidth, minChartWidth)
+    : minChartWidth;
 
   const LineChartData = Object.entries(salesByMonth).map(([city, value]) => ({
     x: city,
@@ -445,7 +452,7 @@ const Dashboard = () => {
                 Submit
               </button>
             </div>
-            <div className="filter-box">
+            <div className="filter-box-n">
               <input
                 type="text"
                 name="region"
@@ -826,8 +833,9 @@ const Dashboard = () => {
                         </div>
                         <ResponsiveChartContainer
                           series={series}
-                          height={320}
                           width={chartWidth}
+                          height={320}
+                          // width={chartWidth}
                           margin={{
                             left: 70,
                             right: 20,
@@ -838,7 +846,6 @@ const Dashboard = () => {
                               id: "x",
                               data: chartData.map((item) => item.x),
                               scaleType: "band",
-
                               labelStyle: {
                                 fontWeight: "bolder",
                                 transform: "translateY(10px)",
@@ -938,6 +945,7 @@ const Dashboard = () => {
                           <ChartsGrid horizontal />
                           <ChartsAxisHighlight x="none" y="none" />
                           <BarPlot
+                            
                             onItemClick={(_e, itemData) => {
                               // const clickedCity = chartData[itemIndex];
                               // console.log(chartData[itemIndex].x);
@@ -948,6 +956,7 @@ const Dashboard = () => {
                               if (clickedItem) {
                                 setclickedOrderNo(clickedItem);
                               }
+                                                          
                             }}
                           />
                           <LinePlot />
