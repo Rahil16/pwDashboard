@@ -290,7 +290,7 @@ const Dashboard = () => {
       return add;
     }, {} as Record<string, number>);
 
-  const chartWidth = Math.max(chartData.length * 50, 1000);
+  const chartWidth = Math.max(chartData.length * 50, 2000);
 
   const LineChartData = Object.entries(salesByMonth).map(([city, value]) => ({
     x: city,
@@ -478,10 +478,40 @@ const Dashboard = () => {
             >
               <div className="title">Performance Dashboard</div>
               <div style={{ display: "flex", justifyContent: "end" }}>
-                <IconButton onClick={handleOpen}>
-                  <MenuIcon />
+                <IconButton
+                  onClick={handleOpen}
+                  size="large"
+                  aria-haspopup="true"
+                >
+                  {/* <MenuIcon sx={{ width: 32, height: 32, position:isOpen? "fixed": "" }} /> */}
+                  {/* <MenuIcon sx={{ width: 32, height: 32, position:"fixed" }} /> */}
+                  <MenuIcon sx={{ width: 32, height: 32}} />
                 </IconButton>
-                <Menu anchorEl={anchorEl} open={isOpen} onClose={handleClose}>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={isOpen}
+                  onClose={handleClose}
+                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  slotProps={{
+                    paper: {
+                      elevation: 0,
+                      sx: {
+                        overflow: "visible",
+                        filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                        mt: 7,
+                        "& .MuiAvatar-root": {
+                          width: 32,
+                          height: 32,
+                          ml: -0.5,
+                          mr: 1,
+                        },
+                      },
+                    },
+                  }}
+                  // transformOrigin={{ horizontal: "right", vertical: "top" }}
+                  // anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                >
                   <MenuItem
                     onClick={() => {
                       handleClose();
@@ -566,58 +596,58 @@ const Dashboard = () => {
                 {/* Sticky Y-axis label */}
                 {!clickedOrderNo && (
                   <>
-                  <div
-                  style={{
-                    position: "absolute",
-                    left: "3%",
-                    top: "60%",
-                    transform: "translateY(-50%) rotate(-90deg)",
-                    transformOrigin: "left center",
-                    zIndex: 10,
-                    background: "transparent",
-                    border: "none",
-                    fontWeight: "bolder",
-                    fontFamily: "Roboto Flex",
-                    fontSize: 15,
-                    color: "#AEAEAE",
-                    padding: "4px 8px",
-                    pointerEvents: "none",
-                    boxShadow: "0 0 8px #fff",
-                    height: "fit-content",
-                    width: "max-content",
-                  }}
-                >
-                  {chartType === "SALES"
-                    ? "Total Sales"
-                    : chartType === "QUANTITYORDERED"
-                    ? "Total Orders"
-                    : "Total Margins"}
-                </div>
-                {/* Sticky X-axis label */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "50%",
-                    bottom: "12%",
-                    transform: "translateX(-50%)",
-                    zIndex: 10,
-                    background: "transparent",
-                    border: "none",
-                    fontWeight: "bolder",
-                    fontFamily: "Roboto Flex",
-                    fontSize: 15,
-                    color: "#AEAEAE",
-                    padding: "4px 8px",
-                    pointerEvents: "none",
-                  }}
-                >
-                  {chartFilter === "CITY"
-                    ? "Cities"
-                    : chartFilter === "Product"
-                    ? "Products"
-                    : "Territories"}
-                </div>
-                </>
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "3%",
+                        top: "60%",
+                        transform: "translateY(-50%) rotate(-90deg)",
+                        transformOrigin: "left center",
+                        zIndex: 10,
+                        background: "transparent",
+                        border: "none",
+                        fontWeight: "bolder",
+                        fontFamily: "Roboto Flex",
+                        fontSize: 15,
+                        color: "#AEAEAE",
+                        padding: "4px 8px",
+                        pointerEvents: "none",
+                        boxShadow: "0 0 8px #fff",
+                        height: "fit-content",
+                        width: "max-content",
+                      }}
+                    >
+                      {chartType === "SALES"
+                        ? "Total Sales"
+                        : chartType === "QUANTITYORDERED"
+                        ? "Total Orders"
+                        : "Total Margins"}
+                    </div>
+                    {/* Sticky X-axis label */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        bottom: "12%",
+                        transform: "translateX(-50%)",
+                        zIndex: 10,
+                        background: "transparent",
+                        border: "none",
+                        fontWeight: "bolder",
+                        fontFamily: "Roboto Flex",
+                        fontSize: 15,
+                        color: "#AEAEAE",
+                        paddingBottom: "2%",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      {chartFilter === "CITY"
+                        ? "Cities"
+                        : chartFilter === "Product"
+                        ? "Products"
+                        : "Territories"}
+                    </div>
+                  </>
                 )}
 
                 <div
@@ -626,12 +656,8 @@ const Dashboard = () => {
                     overflowY: "hidden",
                     height: "100%",
                     width: "100%",
-                    paddingBottom: "400px",
                   }}
                 >
-                  
-                
-                
                   <div style={tableStyle}>
                     {clickedOrderNo ? (
                       <div>
@@ -805,7 +831,7 @@ const Dashboard = () => {
                           margin={{
                             left: 70,
                             right: 20,
-                            bottom: 80,
+                            bottom: 110,
                           }}
                           xAxis={[
                             {
