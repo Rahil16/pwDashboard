@@ -241,12 +241,10 @@ const Dashboard = () => {
     return add;
   }, {} as Record<string, number>);
 
-  
-  
   const SalesByGoal = filteredData.reduce((add, item) => {
     const key = item[chartFilter];
     const type = item["Sales_Goal"];
-    
+
     if (add[key]) {
       add[key] += Number(type as unknown as string);
     } else {
@@ -254,11 +252,10 @@ const Dashboard = () => {
     }
     return add;
   }, {} as Record<string, number>);
-  
+
   const sortedSalesByCity = Object.entries(salesByCity).sort(
     ([, valueA], [, valueB]) => valueB - valueA
   );
-  
 
   const sortedSalesByGoal = Object.entries(SalesByGoal).sort(
     ([, valueA], [, valueB]) => valueB - valueA
@@ -336,7 +333,10 @@ const Dashboard = () => {
       ? data.filter((item) => item.Product === clickedOrderNo)
       : data.filter((item) => item.TERRITORY === clickedOrderNo);
 
-  console.log("chartData", chartData.map((item) => item.y));
+  console.log(
+    "chartData",
+    chartData.map((item) => item.y)
+  );
   const series: AllSeriesType[] = [
     {
       type: "bar" as const,
@@ -351,15 +351,17 @@ const Dashboard = () => {
       color: "#BFE8FF",
     },
     ...(chartType === "SALES"
-      ? 
-    [{
-      type: "line" as const,
-      data: chartDataWithGoal.map((item) => item.y),
-      label: "Sales Goal",
-      color: "#F93C65",
-      showMark: false,
-      curve: "linear" as const,
-    },]:[])
+      ? [
+          {
+            type: "line" as const,
+            data: chartDataWithGoal.map((item) => item.y),
+            label: "Sales Goal",
+            color: "#F93C65",
+            showMark: false,
+            curve: "linear" as const,
+          },
+        ]
+      : []),
   ];
   return (
     <div>
@@ -560,13 +562,67 @@ const Dashboard = () => {
 
             <div className="chart-grid">
               {/* <div className="variations"></div> */}
-              <div className="barchart">
+              <div className="barchart" style={{ position: "relative"}}>
+                {/* Sticky Y-axis label */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "2%",
+                    top: "60%",
+                    transform: "translateY(-50%) rotate(-90deg)",
+                    transformOrigin: "left center",
+                    zIndex: 10,
+                    background: "transparent",
+                    border: "none",
+                    fontWeight: "bolder",
+                    fontFamily: "Roboto Flex",
+                    fontSize: 15,
+                    color: "#AEAEAE",
+                    padding: "4px 8px",
+                    pointerEvents: "none",
+                    boxShadow: "0 0 8px #fff",
+                    height: "fit-content",
+                    width: "max-content",
+                  }}
+                >
+                  {chartType === "SALES"
+                    ? "Total Sales"
+                    : chartType === "QUANTITYORDERED"
+                    ? "Total Orders"
+                    : "Total Margins"}
+                </div>
+                {/* Sticky X-axis label */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    bottom: "12%",
+                    transform: "translateX(-50%)",
+                    zIndex: 10,
+                    background: "transparent",
+                    border: "none",
+                    fontWeight: "bolder",
+                    fontFamily: "Roboto Flex",
+                    fontSize: 15,
+                    color: "#AEAEAE",
+                    padding: "4px 8px",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {chartFilter === "CITY"
+                    ? "Cities"
+                    : chartFilter === "Product"
+                    ? "Products"
+                    : "Territories"}
+                </div>
+
                 <div
                   style={{
                     overflowX: "auto",
                     overflowY: "hidden",
                     height: "100%",
                     width: "100%",
+                    paddingBottom: "40px",
                   }}
                 >
                   <div style={tableStyle}>
@@ -750,12 +806,6 @@ const Dashboard = () => {
                               data: chartData.map((item) => item.x),
                               scaleType: "band",
 
-                              label:
-                                chartFilter === "CITY"
-                                  ? "Cities"
-                                  : chartFilter === "Product"
-                                  ? "Products"
-                                  : "Territories",
                               labelStyle: {
                                 fontWeight: "bolder",
                                 transform: "translateY(10px)",
@@ -779,12 +829,6 @@ const Dashboard = () => {
                             {
                               id: "y",
                               scaleType: "linear",
-                              label:
-                                chartType === "SALES"
-                                  ? "Total Sales"
-                                  : chartType === "QUANTITYORDERED"
-                                  ? "Total Orders"
-                                  : "Total Margins",
                               labelStyle: {
                                 fontWeight: "bolder",
                                 fontFamily: "Roboto Flex",
@@ -863,28 +907,8 @@ const Dashboard = () => {
                           <BarPlot />
                           <LinePlot />
                           <ChartsTooltip trigger="axis" />
-                          <ChartsXAxis
-                            label={
-                              chartFilter === "CITY"
-                                ? "Cities"
-                                : chartFilter === "Product"
-                                ? "Products"
-                                : "Territories"
-                            }
-                            position="bottom"
-                            axisId="x"
-                          />
-                          <ChartsYAxis
-                            label={
-                              chartType === "SALES"
-                                ? "Total Sales"
-                                : chartType === "QUANTITYORDERED"
-                                ? "Total Orders"
-                                : "Total Margins"
-                            }
-                            position="left"
-                            axisId="y"
-                          />
+                          <ChartsXAxis axisId="x" />
+                          <ChartsYAxis axisId="y" />
                         </ResponsiveChartContainer>
                       </div>
                     )}
