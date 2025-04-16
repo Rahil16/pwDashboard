@@ -36,7 +36,7 @@
   align-self: auto;
   height: 100%;
   background: #aeaeae;
-  opacity: 0.2;
+  opacity: 0.5;
 }
 /* Larger laptop screens */
 @media screen and (min-width: 1367px) {
@@ -91,7 +91,7 @@
   font-style: normal;
   font-weight: 400;
   line-height: normal;
-  opacity: 0.5;
+  opacity: 1;
   padding: 10px;
   text-align: left;
 }
@@ -103,7 +103,7 @@
   padding: 10px;
   color: var(--unactive, #c7c7c7);
   font-family: "Roboto Flex";
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-style: normal;
   font-weight: 150;
   line-height: normal;
@@ -196,7 +196,7 @@ stroke: #ECECEC; */
 }
 .date-inpt{
   margin: 5% 0% !important;
-  opacity: 60%;
+  opacity: 80%;
 }
 .date-label{
   text-align: left;
@@ -227,7 +227,7 @@ stroke: #ECECEC; */
   line-height: normal;
   color: #202224;
   padding: 5px; 
-  opacity: .5;
+  opacity: 1;
   cursor: pointer;
 }
 .date-submitbtn:hover{

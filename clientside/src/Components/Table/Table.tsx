@@ -12,23 +12,25 @@ import React from "react";
 interface Order {
   id: number;
   Category: string;
-  City: string;
-  DealSize: string;
-  MSRP: string;
-  Month_ID: number;
-  OrderDate: string | Date;
-  OrderLineNumber: number;
-  OrderNumber: number | string;
-  PriceEach: string;
+  CITY: string;
+  DEALSIZE: string;
+  MSRP: number;
+  MONTH_ID: number;
+  ORDERDATE: string | Date;
+  ORDERLINENUMBER: number;
+  ORDERNUMBER: number | string;
+  PRICEEACH: number;
+  PRODUCTCODE: string;
   Product: string;
-  ProductCode: string;
-  Qtr_ID: number;
-  QuantityOrdered: number;
-  Sales: number;
-  State: string;
-  Status: string;
-  Territory: string;
-  Year_ID: number;
+  QTR_ID: number;
+  QUANTITYORDERED: number;
+  SALES: number;
+  STATE: string;
+  STATUS: string;
+  Sales_Goal: number;
+  TERRITORY: string;
+  YEAR_ID: number;
+  margin: number;
 }
 interface tabletype {
   data: Order[];
@@ -38,23 +40,25 @@ const TableOnClick: React.FC<tabletype> = ({ data }) => {
   const tableHeaders = [
     "id",
     "Category",
-    "City",
-    "DealSize",
-    "Month_ID",
+    "CITY",
+    "DEALSIZE",
     "MSRP",
-    "OrderDate",
-    "OrderLineNumber",
-    "OrderNumber",
-    "PriceEach",
+    "MONTH_ID",
+    "ORDERDATE",
+    "ORDERLINENUMBER",
+    "ORDERNUMBER",
+    "PRICEEACH",
+    "PRODUCTCODE",
     "Product",
-    "ProductCode",
-    "Qtr_ID",
-    "QuantityOrdered",
-    "Sales",
-    "State",
-    "Status",
-    "Territory",
-    "Year_ID",
+    "QTR_ID",
+    "QUANTITYORDERED",
+    "SALES",
+    "STATE",
+    "STATUS",
+    "Sales_Goal",
+    "TERRITORY",
+    "YEAR_ID",
+    "margin"
   ];
   return (
     <div>

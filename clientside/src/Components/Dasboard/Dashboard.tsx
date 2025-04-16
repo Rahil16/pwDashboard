@@ -1,5 +1,5 @@
 import "../../styles/styles.css";
-import { BarChart } from "@mui/x-charts/BarChart";
+// import { BarChart } from "@mui/x-charts/BarChart";
 import axios from "axios";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "dayjs/locale/en-gb";
@@ -9,31 +9,67 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, IconButton, Menu, MenuItem, Select } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
-import { axisClasses, LineChart } from "@mui/x-charts";
+import {
+  AllSeriesType,
+  axisClasses,
+  BarPlot,
+  ChartsAxisHighlight,
+  ChartsGrid,
+  ChartsTooltip,
+  ChartsXAxis,
+  ChartsYAxis,
+  LineChart,
+  LinePlot,
+  ResponsiveChartContainer,
+} from "@mui/x-charts";
 import TableOnClick from "../Table/Table";
 import MenuIcon from "@mui/icons-material/Menu";
+
+// interface Order {
+//   id: number;
+//   Category: string;
+//   City: string;
+//   DealSize: string;
+//   MSRP: string;
+//   Month_ID: number;
+//   OrderDate: string | Date;
+//   OrderLineNumber: number;
+//   OrderNumber: number | string;
+//   PriceEach: string;
+//   Product: string;
+//   ProductCode: string;
+//   Qtr_ID: number;
+//   QuantityOrdered: number;
+//   Sales: number;
+//   State: string;
+//   Status: string;
+//   Territory: string;
+//   margin: number;
+//   Year_ID: number;
+// }
 
 interface Order {
   id: number;
   Category: string;
-  City: string;
-  DealSize: string;
-  MSRP: string;
-  Month_ID: number;
-  OrderDate: string | Date;
-  OrderLineNumber: number;
-  OrderNumber: number | string;
-  PriceEach: string;
+  CITY: string;
+  DEALSIZE: string;
+  MSRP: number;
+  MONTH_ID: number;
+  ORDERDATE: string | Date;
+  ORDERLINENUMBER: number;
+  ORDERNUMBER: number | string;
+  PRICEEACH: number;
+  PRODUCTCODE: string;
   Product: string;
-  ProductCode: string;
-  Qtr_ID: number;
-  QuantityOrdered: number;
-  Sales: number;
-  State: string;
-  Status: string;
-  Territory: string;
+  QTR_ID: number;
+  QUANTITYORDERED: number;
+  SALES: number;
+  STATE: string;
+  STATUS: string;
+  Sales_Goal: number;
+  TERRITORY: string;
+  YEAR_ID: number;
   margin: number;
-  Year_ID: number;
 }
 interface DateType {
   firstDate: undefined | Dayjs | null;
@@ -55,8 +91,8 @@ const Dashboard = () => {
   });
   const [LineChartYear, setLineChartYear] = useState("2023");
 
-  type GroupByKey = "City" | "Product" | "Territory";
-  type GroupByType = "Sales" | "QuantityOrdered" | "margin";
+  type GroupByKey = "CITY" | "Product" | "TERRITORY";
+  type GroupByType = "SALES" | "QUANTITYORDERED" | "margin";
   const [selectedDate, setSelectedtDate] = useState<DateType>({
     firstDate: undefined,
     secondDate: undefined,
@@ -65,8 +101,8 @@ const Dashboard = () => {
   const [clickedOrderNo, setclickedOrderNo] = useState<string | number | null>(
     null
   );
-  const [chartFilter, setChartFilter] = useState<GroupByKey>("City");
-  const [chartType, setChartType] = useState<GroupByType>("Sales");
+  const [chartFilter, setChartFilter] = useState<GroupByKey>("CITY");
+  const [chartType, setChartType] = useState<GroupByType>("SALES");
   const tableStyle = {
     overflow: clickedOrderNo ? "auto" : undefined,
     height: "100%",
@@ -86,7 +122,11 @@ const Dashboard = () => {
         const response = await axios.get(
           "https://pwdashboard.onrender.com/orders"
         );
-        setData(response.data);
+        const arr = Array.isArray(response.data)
+          ? response.data
+          : Object.values(response.data);
+        setData(arr as Order[]);
+        console.log(arr as Order[]);
       } catch (error) {
         console.log("error in fetching data:", error);
       }
@@ -96,7 +136,7 @@ const Dashboard = () => {
 
   useEffect(() => setFilteredData(data), [data]);
 
-  const uniqueCities = [...new Set(data.map((item) => item.City))];
+  const uniqueCities = [...new Set(data.map((item) => item.CITY))];
   const searchUniqueCity: string[] =
     filterSearch.region.trim() == ""
       ? uniqueCities
@@ -104,7 +144,7 @@ const Dashboard = () => {
           item.toLowerCase().includes(filterSearch.region.toLowerCase())
         );
 
-  const MemoChart = React.memo(BarChart);
+  // const MemoChart = React.memo(BarChart);
 
   // const filterByOrderId = (item: number) => {
   //   setFilteredData(filteredData.filter((item1) => item1.OrderNumber === item));
@@ -118,18 +158,18 @@ const Dashboard = () => {
       setFilteredData(
         filteredData.filter(
           (item) =>
-            dayjs(item.OrderDate) <=
+            dayjs(item.ORDERDATE) <=
               dayjs(selectedDate.secondDate).endOf("day") &&
-            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf("day")
+            dayjs(item.ORDERDATE) >= dayjs(selectedDate.firstDate).endOf("day")
         )
       );
 
       setTempData(
         filteredData.filter(
           (item) =>
-            dayjs(item.OrderDate) <=
+            dayjs(item.ORDERDATE) <=
               dayjs(selectedDate.secondDate).endOf("day") &&
-            dayjs(item.OrderDate) >= dayjs(selectedDate.firstDate).endOf("day")
+            dayjs(item.ORDERDATE) >= dayjs(selectedDate.firstDate).endOf("day")
         )
       );
 
@@ -169,14 +209,14 @@ const Dashboard = () => {
     updatedFilters.forEach((filter) => {
       if (filter.type === "city") {
         newFilteredData = newFilteredData.filter(
-          (item) => item.City === filter.value
+          (item) => item.CITY === filter.value
         );
       } else if (filter.type === "date") {
         newFilteredData = newFilteredData.filter(
           (item) =>
-            new Date(item.OrderDate) <=
+            new Date(item.ORDERDATE) <=
               new Date(filter.value.split(" to ")[1]) &&
-            new Date(item.OrderDate) >= new Date(filter.value.split(" to ")[0])
+            new Date(item.ORDERDATE) >= new Date(filter.value.split(" to ")[0])
         );
       }
     });
@@ -188,7 +228,6 @@ const Dashboard = () => {
     setActiveFilter(updatedFilters);
     setFilteredData(newFilteredData);
   };
-
 
   const salesByCity = filteredData.reduce((add, item) => {
     const key = item[chartFilter];
@@ -206,19 +245,21 @@ const Dashboard = () => {
     ([, valueA], [, valueB]) => valueB - valueA
   );
 
-  const chartData = sortedSalesByCity.map(([city, value]) => ({
+  const chartData = sortedSalesByCity.map(([city, value]) => {
+    const match = filteredData.find((item) => item[chartFilter] === city);
+    return {
     x: city,
     y: value,
-  }));
-
-  console.log(LineChartYear);
+    salesGoal: match ? match.Sales_Goal : undefined,
+    }
+  });
 
   const salesByMonth = data
     .filter(
-      (item) => item.OrderDate.toLocaleString().slice(0, 4) === LineChartYear
+      (item) => item.ORDERDATE.toLocaleString().slice(0, 4) === LineChartYear
     )
     .reduce((add, item) => {
-      const key = item["Month_ID"];
+      const key = item["MONTH_ID"];
       const type = item[chartType];
 
       if (add[key]) {
@@ -235,7 +276,6 @@ const Dashboard = () => {
     x: city,
     y: value,
   }));
-  console.log(activeFilter);
 
   //possibility of causing filtering issues
   const filterByCity2 = (city: string) => {
@@ -248,7 +288,7 @@ const Dashboard = () => {
         setFilteredData(
           updatedFilter.map((item) => item.value).length > 0
             ? tempData.filter((item2) =>
-                updatedFilter.map((item3) => item3.value).includes(item2.City)
+                updatedFilter.map((item3) => item3.value).includes(item2.CITY)
               )
             : filteredData
         );
@@ -256,7 +296,7 @@ const Dashboard = () => {
         setFilteredData(
           updatedFilter.map((item) => item.value).length > 0
             ? data.filter((item2) =>
-                updatedFilter.map((item3) => item3.value).includes(item2.City)
+                updatedFilter.map((item3) => item3.value).includes(item2.CITY)
               )
             : filteredData
         );
@@ -265,12 +305,40 @@ const Dashboard = () => {
       return updatedFilter;
     });
   };
+  console.log(Array(chartData.map((item) =>
+    typeof item.y === "number" ? item.y : null)));
+  
+  const filteredTableData =
+    chartFilter === "CITY"
+      ? data.filter((item) => item.CITY === clickedOrderNo)
+      : chartFilter === "Product"
+      ? data.filter((item) => item.Product === clickedOrderNo)
+      : data.filter((item) => item.TERRITORY === clickedOrderNo);
 
-  const filteredTableData = chartFilter === "City" 
-  ? data.filter((item) => item.City === clickedOrderNo)
-  : chartFilter === "Product" 
-  ? data.filter((item) => item.Product === clickedOrderNo)
-  : data.filter((item) => item.Territory === clickedOrderNo);
+  const series: AllSeriesType[] = [
+    {
+      type: "bar" as const,
+      data: chartData.map((item) => item.y),
+      label: `${
+        chartType === "SALES"
+          ? "Total Sales"
+          : chartType === "QUANTITYORDERED"
+          ? "Total Orders"
+          : "Total Margins"
+      } by ${chartFilter}`,
+      color: "#BFE8FF",
+    },
+    {
+      type: "line" as const,
+      data: chartData.map((item) =>
+        typeof item.salesGoal === "number" ? item.salesGoal : null
+      ),
+      label: "Trend",
+      color: "#0095FF",
+      showMark: false,
+      curve: "linear",
+    },
+  ];
   return (
     <div>
       <div className="dashboard">
@@ -281,7 +349,7 @@ const Dashboard = () => {
               <label className="date-label">Filter By:</label>
               <button
                 className="filter-btn"
-                onClick={() => setChartFilter("City")}
+                onClick={() => setChartFilter("CITY")}
               >
                 City
               </button>
@@ -293,7 +361,7 @@ const Dashboard = () => {
               </button>
               <button
                 className="filter-btn"
-                onClick={() => setChartFilter("Territory")}
+                onClick={() => setChartFilter("TERRITORY")}
               >
                 Territory
               </button>
@@ -393,7 +461,7 @@ const Dashboard = () => {
                   <MenuItem
                     onClick={() => {
                       handleClose();
-                      setChartType("Sales");
+                      setChartType("SALES");
                     }}
                   >
                     Sales
@@ -401,7 +469,7 @@ const Dashboard = () => {
                   <MenuItem
                     onClick={() => {
                       handleClose();
-                      setChartType("QuantityOrdered");
+                      setChartType("QUANTITYORDERED");
                     }}
                   >
                     Orders
@@ -482,21 +550,175 @@ const Dashboard = () => {
                   <div style={tableStyle}>
                     {clickedOrderNo ? (
                       <div>
-                        <TableOnClick
-                           data={filteredTableData}
-                        />
+                        <TableOnClick data={filteredTableData} />
                       </div>
                     ) : (
-                      <MemoChart
+                      // <MemoChart
+                      //   xAxis={[
+                      //     {
+                      //       label:
+                      //         chartFilter === "CITY"
+                      //           ? "Cities"
+                      //           : chartFilter === "Product"
+                      //           ? "Products"
+                      //           : "Territories",
+
+                      //       labelStyle: {
+                      //         fontWeight: "bolder",
+                      //         transform: "translateY(10px)",
+                      //         fontFamily: "Roboto Flex",
+                      //         fontSize: 15,
+                      //         fill: "#AEAEAE",
+                      //       },
+                      //       disableLine: true,
+
+                      //       labelFontSize: 15,
+                      //       scaleType: "band",
+                      //       data: chartData.map((item) => item.x),
+                      //       dataKey: "City",
+
+                      //       tickLabelStyle: {
+                      //         fontSize: 12,
+                      //         fontFamily: "poppins",
+                      //         angle: -45,
+                      //         textAnchor: "end",
+                      //         dominantBaseline: "central",
+                      //         fill: "#7B91B0",
+                      //       },
+                      //       disableTicks: true,
+                      //     },
+                      //   ]}
+                      //   grid={{
+                      //     horizontal: true,
+                      //   }}
+                      //   margin={{
+                      //     left: 70,
+                      //     right: 20,
+                      //     bottom: 80,
+                      //   }}
+                      //   sx={{
+                      //     "& .MuiChartsAxis-gridLine": {
+                      //       stroke: "#EFF1F3",
+                      //       fill: "#D9D9D9",
+                      //     },
+                      //     [`.${axisClasses.left} .${axisClasses.label}`]: {
+                      //       transform: "translateX(-30px)",
+                      //     },
+                      //     [`.${axisClasses.bottom} .${axisClasses.label}`]: {
+                      //       transform: `translate(-${
+                      //         chartWidth * 0.385
+                      //       }px,30px)`,
+                      //     },
+                      //   }}
+                      //   slotProps={{
+                      //     legend: {
+                      //       position: {
+                      //         horizontal: "left",
+                      //         vertical: "top",
+                      //       },
+                      //       labelStyle: {
+                      //         fontSize: "20",
+                      //         fontFamily: "Roboto Flex",
+                      //         fontWeight: "semi-bold",
+                      //       },
+
+                      //       padding: {
+                      //         bottom: 10,
+                      //       },
+                      //       itemMarkWidth: 0,
+                      //       itemMarkHeight: 0,
+                      //     },
+                      //   }}
+                      //   yAxis={[
+                      //     {
+                      //       label:
+                      //         chartType === "SALES"
+                      //           ? "Total Sales"
+                      //           : chartType === "QUANTITYORDERED"
+                      //           ? "Total Orders"
+                      //           : "Total Margins",
+                      //       labelStyle: {
+                      //         fontWeight: "bolder",
+                      //         fontFamily: "Roboto Flex",
+                      //         fontSize: 15,
+                      //         fill: "#AEAEAE",
+                      //       },
+                      //       disableLine: true,
+                      //       disableTicks: true,
+                      //       labelFontSize: 15,
+                      //       tickLabelStyle: {
+                      //         fontSize: 12,
+                      //         fontFamily: "poppins",
+                      //         fill: "#7B91B0",
+                      //         textAnchor: "end",
+                      //         marginRight: "10px",
+                      //       },
+                      //       valueFormatter: (value) => {
+                      //         if (value >= 1000000) {
+                      //           return `${(value / 1000000).toFixed(1)}M`;
+                      //         } else if (value >= 1000) {
+                      //           return `${(value / 1000).toFixed(1)}K`;
+                      //         }
+                      //         return value.toString();
+                      //       },
+                      //     },
+                      //   ]}
+                      //   onItemClick={(_e, itemData) => {
+
+                      //       // const clickedCity = chartData[itemIndex];
+                      //       // console.log(chartData[itemIndex].x);
+                      //       console.log(itemData.dataIndex);
+                      //       console.log(chartData[itemData.dataIndex].x);
+                      //       const clickedItem = chartData[itemData.dataIndex].x;
+                      //     if (clickedItem) {
+                      //       setclickedOrderNo(clickedItem);
+                      //     }
+                      //   }}
+                      //   axisHighlight={{ x: "none", y: "none" }}
+                      //   tooltip={{
+                      //     trigger: "axis",
+                      //   }}
+                      //   borderRadius={2}
+                      //   series={[
+                      //     {
+                      //       data: chartData.map((item) => item.y),
+
+                      //       label: `${
+                      //         chartType === "SALES"
+                      //           ? "Total Sales"
+                      //           : chartType === "QUANTITYORDERED"
+                      //           ? "Total Orders"
+                      //           : "Total Margins"
+                      //       } by ${chartFilter}`,
+                      //       color: "#BFE8FF",
+                      //     },
+                      //   ]}
+                      //   width={chartWidth}
+                      //   height={320}
+                      // />
+
+                      <ResponsiveChartContainer
+                        series={series}
+                        height={320}
+                        width={chartWidth}
+                        margin={{
+                          left: 70,
+                          right: 20,
+                          bottom: 80,
+                        }}
+                        
                         xAxis={[
                           {
+                            id: "x",
+                            data: chartData.map((item) => item.x),
+                            scaleType: "band",
+                            
                             label:
-                              chartFilter === "City"
+                              chartFilter === "CITY"
                                 ? "Cities"
                                 : chartFilter === "Product"
                                 ? "Products"
                                 : "Territories",
-
                             labelStyle: {
                               fontWeight: "bolder",
                               transform: "translateY(10px)",
@@ -504,13 +726,6 @@ const Dashboard = () => {
                               fontSize: 15,
                               fill: "#AEAEAE",
                             },
-                            disableLine: true,
-
-                            labelFontSize: 15,
-                            scaleType: "band",
-                            data: chartData.map((item) => item.x),
-                            dataKey: "City",
-
                             tickLabelStyle: {
                               fontSize: 12,
                               fontFamily: "poppins",
@@ -519,56 +734,18 @@ const Dashboard = () => {
                               dominantBaseline: "central",
                               fill: "#7B91B0",
                             },
+                            disableLine: true,
                             disableTicks: true,
                           },
                         ]}
-                        grid={{
-                          horizontal: true,
-                        }}
-                        margin={{
-                          left: 70,
-                          right: 20,
-                          bottom: 80,
-                        }}
-                        sx={{
-                          "& .MuiChartsAxis-gridLine": {
-                            stroke: "#EFF1F3",
-                            fill: "#D9D9D9",
-                          },
-                          [`.${axisClasses.left} .${axisClasses.label}`]: {
-                            transform: "translateX(-30px)",
-                          },
-                          [`.${axisClasses.bottom} .${axisClasses.label}`]: {
-                            transform: `translate(-${
-                              chartWidth * 0.385
-                            }px,30px)`,
-                          },
-                        }}
-                        slotProps={{
-                          legend: {
-                            position: {
-                              horizontal: "left",
-                              vertical: "top",
-                            },
-                            labelStyle: {
-                              fontSize: "20",
-                              fontFamily: "Roboto Flex",
-                              fontWeight: "semi-bold",
-                            },
-
-                            padding: {
-                              bottom: 10,
-                            },
-                            itemMarkWidth: 0,
-                            itemMarkHeight: 0,
-                          },
-                        }}
                         yAxis={[
                           {
+                            id: "y",
+                            scaleType: "linear",
                             label:
-                              chartType === "Sales"
+                              chartType === "SALES"
                                 ? "Total Sales"
-                                : chartType === "QuantityOrdered"
+                                : chartType === "QUANTITYORDERED"
                                 ? "Total Orders"
                                 : "Total Margins",
                             labelStyle: {
@@ -576,9 +753,12 @@ const Dashboard = () => {
                               fontFamily: "Roboto Flex",
                               fontSize: 15,
                               fill: "#AEAEAE",
+                              
                             },
                             disableLine: true,
+                            
                             disableTicks: true,
+                            
                             labelFontSize: 15,
                             tickLabelStyle: {
                               fontSize: 12,
@@ -593,43 +773,85 @@ const Dashboard = () => {
                               } else if (value >= 1000) {
                                 return `${(value / 1000).toFixed(1)}K`;
                               }
-                              return value.toString();
+                              return value?.toString() ?? "";
                             },
+                            
                           },
-                        ]}
-                        onItemClick={(_e, itemData) => {
                           
-                            // const clickedCity = chartData[itemIndex];
-                            // console.log(chartData[itemIndex].x);
-                            console.log(itemData.dataIndex);
-                            console.log(chartData[itemData.dataIndex].x);
-                            const clickedItem = chartData[itemData.dataIndex].x;
-                          if (clickedItem) {
-                            setclickedOrderNo(clickedItem);
-                          }
-                        }}
-                        axisHighlight={{ x: "none", y: "none" }}
-                        tooltip={{
-                          trigger: "axis",
-                        }}
-                        borderRadius={2}
-                        series={[
-                          {
-                            data: chartData.map((item) => item.y),
-
-                            label: `${
-                              chartType === "Sales"
-                                ? "Total Sales"
-                                : chartType === "QuantityOrdered"
-                                ? "Total Orders"
-                                : "Total Margins"
-                            } by ${chartFilter}`,
-                            color: "#BFE8FF",
-                          },
                         ]}
-                        width={chartWidth}
-                        height={320}
-                      />
+                        
+                        sx={{
+                          // Axis grid lines
+                          "& .MuiChartsAxis-gridLine": {
+                            stroke: "#EFF1F3",
+                            fill: "#D9D9D9",
+                          },
+                          // Left axis label
+                          [`.${axisClasses.left} .${axisClasses.label}`]: {
+                            transform: "translateX(-30px)",
+                            fontWeight: "bolder",
+                            fontFamily: "Roboto Flex",
+                            fontSize: 15,
+                            fill: "#AEAEAE",
+                          },
+                          // Bottom axis label
+                          [`.${axisClasses.bottom} .${axisClasses.label}`]: {
+                            transform: `translate(-${
+                              chartWidth * 0.385
+                            }px,30px)`,
+                            fontWeight: "bolder",
+                            fontFamily: "Roboto Flex",
+                            fontSize: 15,
+                            fill: "#AEAEAE",
+                          },
+                          // Legend root
+                          "& .MuiChartsLegend-root": {
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            paddingBottom: 10,
+                          },
+                          // Legend label
+                          "& .MuiChartsLegend-label": {
+                            fontSize: 20,
+                            fontFamily: "Roboto Flex",
+                            fontWeight: 600,
+                          },
+                          // Hide legend item marks
+                          "& .MuiChartsLegend-mark": {
+                            width: 0,
+                            height: 0,
+                          },
+                        }}
+                      >
+                        <ChartsGrid horizontal />
+                        <ChartsAxisHighlight x="line" />
+                        <BarPlot />
+                        <LinePlot />
+                        <ChartsTooltip trigger="axis" />
+                        <ChartsXAxis
+                          label={
+                            chartFilter === "CITY"
+                              ? "Cities"
+                              : chartFilter === "Product"
+                              ? "Products"
+                              : "Territories"
+                          }
+                          position="bottom"
+                          axisId="x"
+                        />
+                        <ChartsYAxis
+                          label={
+                            chartType === "SALES"
+                              ? "Total Sales"
+                              : chartType === "QUANTITYORDERED"
+                              ? "Total Orders"
+                              : "Total Margins"
+                          }
+                          position="left"
+                          axisId="y"
+                        />
+                      </ResponsiveChartContainer>
                     )}
                   </div>
                 </div>
@@ -720,9 +942,9 @@ const Dashboard = () => {
                     {
                       scaleType: "linear",
                       label: `${
-                        chartType === "Sales"
+                        chartType === "SALES"
                           ? "Sales"
-                          : chartType === "QuantityOrdered"
+                          : chartType === "QUANTITYORDERED"
                           ? "Orders"
                           : "Margins"
                       }`,
@@ -770,9 +992,9 @@ const Dashboard = () => {
                       id: "Sales",
                       data: LineChartData.map((item) => item.y),
                       label: `${
-                        chartType === "Sales"
+                        chartType === "SALES"
                           ? "Daily Sales"
-                          : chartType === "QuantityOrdered"
+                          : chartType === "QUANTITYORDERED"
                           ? "Daily Orders"
                           : "Daily Margins"
                       }`,
