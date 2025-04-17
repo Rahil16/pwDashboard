@@ -453,7 +453,7 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="city-filter-box">
-            <input
+              <input
                 type="text"
                 name="region"
                 placeholder="City"
@@ -461,20 +461,19 @@ const Dashboard = () => {
                 value={filterSearch.region}
                 onChange={handleSearchChange}
               />
-            <div className="filter-box-n">
-              
-              {searchUniqueCity.map((item, index) => (
-                <button
-                  className="filter-btn"
-                  key={index}
-                  onClick={() => {
-                    filterByCity2(item);
-                  }}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
+              <div className="filter-box-n">
+                {searchUniqueCity.map((item, index) => (
+                  <button
+                    className="filter-btn"
+                    key={index}
+                    onClick={() => {
+                      filterByCity2(item);
+                    }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -520,8 +519,6 @@ const Dashboard = () => {
                         "& .MuiAvatar-root": {
                           width: 32,
                           height: 32,
-                          
-                          
                         },
                       },
                     },
@@ -1027,10 +1024,14 @@ const Dashboard = () => {
                       disableTicks: true,
                       tickLabelStyle: {
                         fontSize: 12,
-                        fontFamily: "poppins",
+
                         textAnchor: "middle",
-                        fill: "#2B3034",
-                        opacity: "40%",
+
+                        fontFamily: "poppins",
+                        fillOpacity: 6,
+                        dominantBaseline: "central",
+                        fill: "#7B91B0",
+                        transform: "translateY(5%)",
                       },
                       tickPlacement: "middle",
                     },
@@ -1043,7 +1044,7 @@ const Dashboard = () => {
                       },
 
                       labelStyle: {
-                        fontSize: "14",
+                        fontSize: "15",
                         fontFamily: "Roboto Flex",
                         fill: "#404040",
                       },
@@ -1073,9 +1074,8 @@ const Dashboard = () => {
                       tickFontSize: 12,
                       tickLabelStyle: {
                         fontSize: 12,
-                        fontFamily: "Nunito Sans",
-                        fill: "#2B3034",
-                        opacity: "40%",
+                        fontFamily: "poppins",
+                        fill: "#7B91B0",
                       },
                       valueFormatter: (value) => {
                         if (value >= 1000000) {
