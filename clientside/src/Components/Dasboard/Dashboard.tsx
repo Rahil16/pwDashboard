@@ -354,7 +354,13 @@ const Dashboard = () => {
           : chartType === "QUANTITYORDERED"
           ? "Total Orders"
           : "Total Margins"
-      } by ${chartFilter}`,
+      } by ${
+        chartFilter === "CITY"
+          ? "City"
+          : chartFilter === "Product"
+          ? "Product"
+          : "Territory"
+      }`,
       color: "#BFE8FF",
     },
     ...(chartType === "SALES"
@@ -836,7 +842,12 @@ const Dashboard = () => {
                             : chartType === "QUANTITYORDERED"
                             ? "Total Orders"
                             : "Total Margins"}{" "}
-                          by {chartFilter}
+                          by{" "}
+                          {chartFilter.toUpperCase() === "CITY"
+                            ? "City"
+                            : chartFilter.toUpperCase() === "PRODUCT"
+                            ? "Product"
+                            : "Territory"}
                         </div>
                         <ResponsiveChartContainer
                           series={series}
