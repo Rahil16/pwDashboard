@@ -629,7 +629,7 @@ const Dashboard = () => {
                         fontWeight: "bolder",
                         fontFamily: "Roboto Flex",
                         fontSize: 20,
-                        color: "#AEAEAE",
+                        color: "#202224",
                         padding: "4px 8px",
                         pointerEvents: "none",
                         boxShadow: "0 0 8px #fff",
@@ -656,7 +656,7 @@ const Dashboard = () => {
                         fontWeight: "bolder",
                         fontFamily: "Roboto Flex",
                         fontSize: 20,
-                        color: "#AEAEAE",
+                        color: "#202224",
                         paddingBottom: "2%",
                         pointerEvents: "none",
                       }}
@@ -869,7 +869,8 @@ const Dashboard = () => {
                                 transform: "translateY(10px)",
                                 fontFamily: "Roboto Flex",
                                 fontSize: 15,
-                                fill: "#AEAEAE",
+                                // fill: "#AEAEAE",
+                                fill: "#202224",
                               },
                               tickLabelStyle: {
                                 fontSize: 12,
@@ -877,7 +878,8 @@ const Dashboard = () => {
                                 angle: -45,
                                 textAnchor: "end",
                                 dominantBaseline: "central",
-                                fill: "#7B91B0",
+                                // fill: "#7B91B0",
+                                fill: "#202224",
                               },
                               disableLine: true,
                               disableTicks: true,
@@ -901,7 +903,8 @@ const Dashboard = () => {
                               tickLabelStyle: {
                                 fontSize: 12,
                                 fontFamily: "poppins",
-                                fill: "#7B91B0",
+                                // fill: "#7B91B0",
+                                fill: "#202224",
                                 textAnchor: "end",
                                 marginRight: "10px",
                               },
@@ -1041,7 +1044,8 @@ const Dashboard = () => {
                         fontFamily: "poppins",
                         fillOpacity: 6,
                         dominantBaseline: "central",
-                        fill: "#7B91B0",
+                        // fill: "#7B91B0",
+                        fill: "#202224",
                         transform: "translateY(5%)",
                       },
                       tickPlacement: "middle",
@@ -1078,7 +1082,7 @@ const Dashboard = () => {
                       labelStyle: {
                         fontFamily: "Roboto Flex",
                         fontSize: 18,
-                        fill: "#AEAEAE",
+                        fill: "#202224",
                       },
                       disableLine: true,
                       disableTicks: true,
@@ -1086,7 +1090,8 @@ const Dashboard = () => {
                       tickLabelStyle: {
                         fontSize: 12,
                         fontFamily: "poppins",
-                        fill: "#7B91B0",
+                        // fill: "#7B91B0",
+                        fill: "#202224",
                       },
                       valueFormatter: (value) => {
                         if (value >= 1000000) {
@@ -1117,7 +1122,7 @@ const Dashboard = () => {
                     {
                       id: "Sales",
                       data: LineChartData.map((item) => item.y),
-                      label: `${"Daily Sales"}`,
+                      label: `${"Monthly Sales"}`,
                       color: "#0095FF",
                       showMark: false,
                       curve: "linear",
