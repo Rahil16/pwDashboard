@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import { Button, IconButton, Menu, MenuItem, Select } from "@mui/material";
+import { Button, Fab, IconButton, Menu, MenuItem, Select } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import {
   AllSeriesType,
@@ -24,6 +24,7 @@ import {
 } from "@mui/x-charts";
 import TableOnClick from "../Table/Table";
 import MenuIcon from "@mui/icons-material/Menu";
+import { ChatBubble } from "@mui/icons-material";
 
 // interface Order {
 //   id: number;
@@ -378,6 +379,13 @@ const Dashboard = () => {
   ];
   return (
     <div>
+      <Fab
+        aria-label="add"
+        style={{ position: "fixed", bottom: "2rem", right: "2rem" }}
+        onClick={() => {window.location.href = "https://sales-chatbot-znkw.onrender.com/";}}
+      >
+        <ChatBubble />
+      </Fab>
       <div className="dashboard">
         <div style={{ display: "flex" }}>
           <div className="filters-left"></div>
