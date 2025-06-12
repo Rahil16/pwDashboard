@@ -25,6 +25,7 @@ import {
 import TableOnClick from "../Table/Table";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ChatBubble } from "@mui/icons-material";
+import Chatbot from "../Chatbot/Chatbot";
 
 // interface Order {
 //   id: number;
@@ -85,6 +86,7 @@ const Dashboard = () => {
   const [data, setData] = useState<Order[]>([]);
   const [filteredData, setFilteredData] = useState<Order[]>([]);
   const [tempData, setTempData] = useState<Order[]>(data);
+   const [chatOpen, setChatOpen] = useState(false);
 
   const [filterSearch, setFilterSearch] = useState({
     region: "",
@@ -379,13 +381,16 @@ const Dashboard = () => {
   ];
   return (
     <div>
+      <div>
       <Fab
         aria-label="add"
         style={{ position: "fixed", bottom: "2rem", right: "2rem" }}
-        onClick={() => {window.location.href = "https://sales-chatbot-znkw.onrender.com/";}}
+        onClick={() => {setChatOpen(true)}}
       >
         <ChatBubble />
       </Fab>
+      <Chatbot open={chatOpen} onClose={() => setChatOpen(false)} />
+      </div>
       <div className="dashboard">
         <div style={{ display: "flex" }}>
           <div className="filters-left"></div>
