@@ -35,7 +35,7 @@ export default function Chatbot({ open, onClose }: ChatbotProps) {
 
     try {
       const { data } = await axios.post<{ response?: string; error?: string }>(
-        "http://127.0.0.1:8000/ask",
+        "https://sales-chatbot-znkw.onrender.com/ask",
         new URLSearchParams({ question }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
