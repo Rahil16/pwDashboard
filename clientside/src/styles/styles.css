@@ -290,8 +290,8 @@ stroke: #ECECEC; */
 }
 .chatbotHeading {
   padding: 12;
-  borderbottom: 1px solid #ddd;
-  textalign: right;
+  border-bottom: 1px solid #ddd;
+  text-align: right;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -340,4 +340,41 @@ stroke: #ECECEC; */
 }
 .chatbotInput:focus {
   outline: none;
+}
+.typing-indicator {
+  display: flex;
+  padding: 12px 16px;
+  background: #f1f3f4;
+  width: fit-content;
+  border-radius: 18px;
+  align-self: flex-start;
+  margin-bottom: 12px;
+  width: fit-content;
+}
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  background: #5f6368;
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: typingAnimation 1.4s infinite ease-in-out;
+}
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes typingAnimation {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px);
+  }
 }

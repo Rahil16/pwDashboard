@@ -17,6 +17,7 @@ export default function Chatbot({ open, onClose }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [waiting,setWaiting] = useState<boolean>()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,12 +27,23 @@ export default function Chatbot({ open, onClose }: ChatbotProps) {
     setMessages((msgs) => [...msgs, { sender, text }]);
   }
 
+  function TypingIndicator() {
+  return (
+    <div className="typing-indicator">
+      <div className="typing-dot"></div>
+      <div className="typing-dot"></div>
+      <div className="typing-dot"></div>
+    </div>
+  );
+}
+
   async function handleSend() {
     const question = input.trim();
     if (!question) return;
     addMessage("user", question);
     setInput("");
-    addMessage("bot", "typing...");
+    // addMessage("bot", "typing...");
+    setWaiting(true)
 
     try {
       const { data } = await axios.post<{ response?: string; error?: string }>(
@@ -39,12 +51,14 @@ export default function Chatbot({ open, onClose }: ChatbotProps) {
         new URLSearchParams({ question }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
-      setMessages((msgs) => msgs.filter((m) => m.text !== "...typing"));
+      // setMessages((msgs) => msgs.filter((m) => m.text !== "typing..."));
       addMessage("bot", data.response || data.error || "");
     } catch (err) {
       console.error("Error sending message:", err);
-      setMessages((msgs) => msgs.filter((m) => m.text !== "...typing"));
+      // setMessages((msgs) => msgs.filter((m) => m.text !== "typing..."));
       addMessage("bot", "Error: Could not reach the server.");
+    } finally{
+      setWaiting(false);
     }
   }
 
@@ -86,6 +100,7 @@ export default function Chatbot({ open, onClose }: ChatbotProps) {
               </span>
             </div>
           ))}
+          {waiting && <TypingIndicator />}
           <div ref={bottomRef} />
         </div>
 
